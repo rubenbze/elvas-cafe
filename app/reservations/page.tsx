@@ -1,183 +1,159 @@
 "use client";
-import Footer from "@/components/Footer";
+
+import { useState } from "react";
+
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import PageBackground from "@/components/PageBackground";
+
+import "@fontsource/playfair-display";
 
 export default function ReservationsPage() {
+
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [guests, setGuests] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  function handleReservation() {
+
+    if (
+      !name ||
+      !phone ||
+      !guests ||
+      !date ||
+      !time
+    ) {
+
+      setError(
+        "Please complete all reservation details."
+      );
+
+      return;
+    }
+
+    setError("");
+    setSuccess(true);
+  }
+
   return (
-    <main className="relative min-h-screen bg-[#120d0a] overflow-hidden text-white">
+    <main className="relative min-h-screen overflow-hidden text-white">
 
-      {/* BACKGROUND IMAGE */}
-
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-20"
-        style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1800&auto=format&fit=crop')",
-        }}
-      />
-
-      {/* DARK OVERLAY */}
-
-      <div className="absolute inset-0 bg-gradient-to-b from-[#120d0a]/95 via-[#120d0a]/90 to-[#120d0a]" />
-
-      {/* NAVBAR */}
+      <PageBackground />
 
       <Navbar />
 
-      {/* CONTENT */}
+      <section className="relative z-10 pt-44 px-6 pb-24">
 
-      <div className="relative z-10 flex justify-center">
+        <div className="max-w-3xl mx-auto bg-black/50 border border-white/10 rounded-[40px] p-12 backdrop-blur-xl shadow-2xl">
 
-        <div className="w-full max-w-6xl px-6 md:px-10">
+          <h1
+            className="text-6xl text-center mb-10"
+            style={{
+              fontFamily: "Playfair Display",
+            }}
+          >
+            Reservations
+          </h1>
 
-          {/* HERO SECTION */}
+          {!success ? (
 
-          <section className="pt-44 pb-24 text-center">
+            <div className="space-y-5">
 
-            <p className="uppercase tracking-[0.45em] text-[#d6b98c] text-sm mb-6">
-              Luxury Reservations
-            </p>
+              <input
+                type="text"
+                placeholder="Full Name"
+                value={name}
+                onChange={(e) =>
+                  setName(e.target.value)
+                }
+                className="w-full bg-white/10 border border-white/10 rounded-full px-6 py-4 outline-none"
+              />
 
-            <h1 className="text-6xl md:text-8xl leading-tight font-light">
-              Reserve
-              <br />
-              Your Table
-            </h1>
+              <input
+                type="text"
+                placeholder="Phone Number"
+                value={phone}
+                onChange={(e) =>
+                  setPhone(e.target.value)
+                }
+                className="w-full bg-white/10 border border-white/10 rounded-full px-6 py-4 outline-none"
+              />
 
-            <p className="mt-10 text-gray-300 max-w-3xl mx-auto text-lg md:text-xl leading-9">
-              Experience artisan coffee, handcrafted pastries,
-              cinematic interiors, and refined hospitality
-              inspired by boutique Parisian cafés.
-            </p>
+              <input
+                type="number"
+                placeholder="Number of Guests"
+                value={guests}
+                onChange={(e) =>
+                  setGuests(e.target.value)
+                }
+                className="w-full bg-white/10 border border-white/10 rounded-full px-6 py-4 outline-none"
+              />
 
-          </section>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) =>
+                  setDate(e.target.value)
+                }
+                className="w-full bg-white/10 border border-white/10 rounded-full px-6 py-4 outline-none"
+              />
 
-          {/* RESERVATION CARD */}
+              <input
+                type="time"
+                value={time}
+                onChange={(e) =>
+                  setTime(e.target.value)
+                }
+                className="w-full bg-white/10 border border-white/10 rounded-full px-6 py-4 outline-none"
+              />
 
-          <section className="pb-32 flex justify-center">
+              {error && (
 
-            <div className="w-full max-w-5xl bg-[#1b1511]/80 backdrop-blur-2xl border border-[#2d211a] rounded-[50px] p-10 md:p-16 shadow-[0_30px_100px_rgba(0,0,0,0.55)]">
+                <div className="bg-red-500/20 border border-red-500/30 text-red-300 px-6 py-4 rounded-2xl">
 
-              <div className="grid md:grid-cols-2 gap-8">
+                  {error}
 
-                {/* FIRST NAME */}
+                </div>
 
-                <input
-                  type="text"
-                  placeholder="First Name"
-                  className="w-full bg-[#120d0a] border border-[#3a2a21] rounded-2xl px-6 py-5 text-lg outline-none focus:border-[#d6b98c] transition"
-                />
+              )}
 
-                {/* LAST NAME */}
-
-                <input
-                  type="text"
-                  placeholder="Last Name"
-                  className="w-full bg-[#120d0a] border border-[#3a2a21] rounded-2xl px-6 py-5 text-lg outline-none focus:border-[#d6b98c] transition"
-                />
-
-                {/* EMAIL */}
-
-                <input
-                  type="email"
-                  placeholder="Email Address"
-                  className="w-full bg-[#120d0a] border border-[#3a2a21] rounded-2xl px-6 py-5 text-lg outline-none focus:border-[#d6b98c] transition"
-                />
-
-                {/* PHONE */}
-
-                <input
-                  type="tel"
-                  placeholder="Phone Number"
-                  className="w-full bg-[#120d0a] border border-[#3a2a21] rounded-2xl px-6 py-5 text-lg outline-none focus:border-[#d6b98c] transition"
-                />
-
-                {/* DATE */}
-
-                <input
-                  type="date"
-                  className="w-full bg-[#120d0a] border border-[#3a2a21] rounded-2xl px-6 py-5 text-lg outline-none focus:border-[#d6b98c] transition"
-                />
-
-                {/* TIME */}
-
-                <input
-                  type="time"
-                  className="w-full bg-[#120d0a] border border-[#3a2a21] rounded-2xl px-6 py-5 text-lg outline-none focus:border-[#d6b98c] transition"
-                />
-
-                {/* PARTY SIZE */}
-
-                <select
-                  className="w-full bg-[#120d0a] border border-[#3a2a21] rounded-2xl px-6 py-5 text-lg outline-none focus:border-[#d6b98c] transition"
-                >
-                  <option>Party Size</option>
-                  <option>1 Guest</option>
-                  <option>2 Guests</option>
-                  <option>3 Guests</option>
-                  <option>4 Guests</option>
-                  <option>5+ Guests</option>
-                </select>
-
-                {/* SEATING */}
-
-                <select
-                  className="w-full bg-[#120d0a] border border-[#3a2a21] rounded-2xl px-6 py-5 text-lg outline-none focus:border-[#d6b98c] transition"
-                >
-                  <option>Seating Preference</option>
-                  <option>Indoor Seating</option>
-                  <option>Outdoor Seating</option>
-                  <option>Private Experience</option>
-                </select>
-
-              </div>
-
-              {/* SPECIAL REQUESTS */}
-
-              <div className="mt-8">
-
-                <textarea
-                  rows={6}
-                  placeholder="Special Requests"
-                  className="w-full bg-[#120d0a] border border-[#3a2a21] rounded-2xl px-6 py-5 text-lg outline-none focus:border-[#d6b98c] transition resize-none"
-                />
-
-              </div>
-
-              {/* BUTTONS */}
-
-              <div className="flex flex-wrap justify-center gap-6 mt-10">
-
-                <button
-                  className="bg-[#d6b98c] text-black px-10 py-5 rounded-2xl uppercase tracking-[0.2em] hover:bg-white hover:scale-105 transition duration-300"
-                >
-                  Submit Reservation
-                </button>
-
-                <a
-                  href="tel:+5016261182"
-                  className="bg-[#1b1511] border border-[#2d211a] px-10 py-5 rounded-2xl hover:border-[#d6b98c] hover:scale-105 transition duration-300"
-                >
-                  📞 Call Us
-                </a>
-
-                <a
-                  href="mailto:rdonis83@gmail.com"
-                  className="bg-[#1b1511] border border-[#2d211a] px-10 py-5 rounded-2xl hover:border-[#d6b98c] hover:scale-105 transition duration-300"
-                >
-                  ✉️ Send Email
-                </a>
-
-              </div>
+              <button
+                onClick={handleReservation}
+                className="w-full bg-[#d6b98c] text-black py-5 rounded-full text-lg font-semibold hover:scale-105 transition"
+              >
+                Reserve Table
+              </button>
 
             </div>
 
-          </section>
+          ) : (
+
+            <div className="text-center space-y-6">
+
+              <h2 className="text-5xl text-[#d6b98c]">
+                Reservation Confirmed
+              </h2>
+
+              <p className="text-xl text-gray-300">
+                We look forward to hosting you at
+                Elva&apos;s Cafe.
+              </p>
+
+            </div>
+
+          )}
 
         </div>
 
-      </div>
-<Footer />
+      </section>
+
+      <Footer />
+
     </main>
   );
 }
