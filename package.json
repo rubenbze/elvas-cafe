@@ -12,6 +12,7 @@
     "@fontsource/great-vibes": "^5.2.8",
     "@fontsource/inter": "^5.2.8",
     "@fontsource/playfair-display": "^5.2.8",
+    "@radix-ui/react-dialog": "^1.1.15",
     "@supabase/supabase-js": "^2.105.4",
     "framer-motion": "^12.38.0",
     "gsap": "^3.15.0",

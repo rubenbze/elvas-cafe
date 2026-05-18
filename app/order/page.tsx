@@ -4,11 +4,12 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageBackground from "@/components/PageBackground";
 
-import { useCartStore } from "@/store/cartStore";
 
 import "@fontsource/playfair-display";
 
 import FloatingCart from "@/components/FloatingCart";
+
+import CustomizeDrinkModal from "@/components/CustomizeDrinkModal";
 
 
 const menuSections = [
@@ -185,9 +186,7 @@ const menuSections = [
 
 export default function OrderPage() {
 
-  const addToCart = useCartStore(
-    (state) => state.addToCart
-  );
+ 
 
   return (
     <main className="relative min-h-screen overflow-hidden text-white">
@@ -276,17 +275,7 @@ export default function OrderPage() {
                           ${item.price}
                         </p>
 
-                        <button
-                          onClick={() =>
-                            addToCart({
-                              ...item,
-                              quantity: 1,
-                            })
-                          }
-                          className="bg-[#d6b98c] text-black px-6 py-3 rounded-full font-semibold hover:scale-105 transition"
-                        >
-                          Add
-                        </button>
+                       <CustomizeDrinkModal item={item} />
 
                       </div>
 
