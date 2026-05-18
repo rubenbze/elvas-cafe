@@ -8,106 +8,97 @@ import PageBackground from "@/components/PageBackground";
 
 import { useCartStore } from "@/store/cartStore";
 
+import { supabase } from "@/lib/supabase";
+
 import "@fontsource/playfair-display";
 
 export default function CheckoutPage() {
 
-  const cart = useCartStore(
-    (state) => state.cart
-  );
+  const cart = useCartStore((state) => state.cart);
 
   const clearCart = useCartStore(
     (state) => state.clearCart
+  );
+
+  const increaseQuantity = useCartStore(
+    (state) => state.increaseQuantity
+  );
+
+  const decreaseQuantity = useCartStore(
+    (state) => state.decreaseQuantity
+  );
+
+  const removeFromCart = useCartStore(
+    (state) => state.removeFromCart
   );
 
   const [name, setName] = useState("");
 
   const [phone, setPhone] = useState("");
 
-  const [submitted, setSubmitted] =
-    useState(false);
+  const [error, setError] = useState("");
 
-  const [savedOrder, setSavedOrder] =
-    useState<any>(null);
+  const [success, setSuccess] = useState("");
 
-  const displayedSubtotal = cart.reduce(
-    (total, item) =>
-      total + item.price * item.quantity,
+  const [loading, setLoading] = useState(false);
+
+  const subtotal = cart.reduce(
+    (acc, item) => acc + item.price * item.quantity,
     0
   );
 
-  const subtotal =
-    displayedSubtotal / 1.125;
+  const gst = subtotal * 0.125;
 
-  const gst =
-    displayedSubtotal - subtotal;
+  const total = subtotal + gst;
 
-  const total =
-    displayedSubtotal;
+  async function handleSubmitOrder() {
 
-  useEffect(() => {
-
-    const existingOrder =
-      localStorage.getItem(
-        "latestOrder"
-      );
-
-    if (existingOrder) {
-
-      setSavedOrder(
-        JSON.parse(existingOrder)
-      );
-
-    }
-
-  }, []);
-
-  const submitOrder = () => {
+    setError("");
+    setSuccess("");
 
     if (!name || !phone) {
-
-      alert(
-        "Please complete all required fields."
-      );
-
+      setError("Please fill out all required fields.");
       return;
-
     }
 
     if (cart.length === 0) {
-
-      alert(
-        "Your cart is empty."
-      );
-
+      setError("Your cart is empty.");
       return;
-
     }
 
-    const orderNumber =
-      Math.floor(
-        1000 + Math.random() * 9000
-      );
+    setLoading(true);
+
+    const orderNumber = Math.floor(
+      1000 + Math.random() * 9000
+    );
+
+    const { error } = await supabase
+      .from("orders")
+      .insert([
+        {
+          order_number: orderNumber,
+          customer_name: name,
+          customer_phone: phone,
+          items: cart,
+          subtotal,
+          gst,
+          total,
+        },
+      ]);
+
+    setLoading(false);
+
+    if (error) {
+      setError("Failed to place order.");
+      return;
+    }
 
     const orderData = {
-
       orderNumber,
-
       name,
-
       phone,
-
-      items: cart,
-
-      subtotal,
-
-      gst,
-
       total,
-
-      createdAt:
-        new Date().toLocaleString(),
-
+      createdAt: new Date().toISOString(),
     };
 
     localStorage.setItem(
@@ -115,56 +106,44 @@ export default function CheckoutPage() {
       JSON.stringify(orderData)
     );
 
-    const existingHistory =
-      JSON.parse(
-        localStorage.getItem(
-          "orderHistory"
-        ) || "[]"
-      );
-
-    localStorage.setItem(
-      "orderHistory",
-      JSON.stringify([
-        orderData,
-        ...existingHistory,
-      ])
+    setSuccess(
+      `Order #${orderNumber} placed successfully.`
     );
 
-    setSavedOrder(orderData);
-
-    setSubmitted(true);
-
     clearCart();
-
-  };
+  }
 
   return (
-
     <main className="relative min-h-screen overflow-hidden text-white">
 
       <PageBackground />
 
       <Navbar />
 
-      <section className="relative z-10 pt-44 pb-24 px-6">
+      <section className="relative z-10 pt-44 px-6 pb-20">
 
         <div className="max-w-5xl mx-auto">
 
           <h1
-            className="text-5xl md:text-7xl text-center mb-16"
+            className="text-5xl md:text-7xl mb-12 text-center"
             style={{
-              fontFamily:
-                "Playfair Display",
+              fontFamily: "Playfair Display",
             }}
           >
             Checkout
           </h1>
 
-          {!submitted ? (
+          <div className="grid lg:grid-cols-2 gap-12">
 
-            <div className="backdrop-blur-2xl bg-black/30 border border-white/10 rounded-[40px] p-10">
+            {/* LEFT */}
 
-              <div className="grid md:grid-cols-2 gap-6 mb-12">
+            <div className="bg-black/30 border border-white/10 rounded-3xl p-8 backdrop-blur-xl">
+
+              <h2 className="text-3xl mb-8">
+                Customer Information
+              </h2>
+
+              <div className="space-y-6">
 
                 <input
                   type="text"
@@ -173,7 +152,7 @@ export default function CheckoutPage() {
                   onChange={(e) =>
                     setName(e.target.value)
                   }
-                  className="bg-white/10 border border-white/10 rounded-2xl px-6 py-5 outline-none"
+                  className="w-full bg-black/30 border border-white/10 rounded-xl px-5 py-4 outline-none"
                 />
 
                 <input
@@ -183,12 +162,34 @@ export default function CheckoutPage() {
                   onChange={(e) =>
                     setPhone(e.target.value)
                   }
-                  className="bg-white/10 border border-white/10 rounded-2xl px-6 py-5 outline-none"
+                  className="w-full bg-black/30 border border-white/10 rounded-xl px-5 py-4 outline-none"
                 />
 
               </div>
 
-              <div className="space-y-6 mb-12">
+              {error && (
+                <div className="mt-6 bg-red-500/20 border border-red-500 rounded-xl p-4 text-red-300">
+                  {error}
+                </div>
+              )}
+
+              {success && (
+                <div className="mt-6 bg-green-500/20 border border-green-500 rounded-xl p-4 text-green-300">
+                  {success}
+                </div>
+              )}
+
+            </div>
+
+            {/* RIGHT */}
+
+            <div className="bg-black/30 border border-white/10 rounded-3xl p-8 backdrop-blur-xl">
+
+              <h2 className="text-3xl mb-8">
+                Your Order
+              </h2>
+
+              <div className="space-y-6">
 
                 {cart.map((item, index) => (
 
@@ -197,92 +198,95 @@ export default function CheckoutPage() {
                     className="border-b border-white/10 pb-6"
                   >
 
-                    <div className="flex items-center justify-between gap-6">
+                    <div className="flex items-center justify-between">
 
                       <div>
 
-                        <h2 className="text-2xl">
+                        <h3 className="text-xl">
                           {item.name}
-                        </h2>
+                        </h3>
 
-                        <p className="text-gray-400 mt-2">
-                          Qty:
-                          {" "}
-                          {item.quantity}
+                        <p className="text-[#d6b98c] mt-1">
+                          ${(item.price * item.quantity).toFixed(2)}
                         </p>
 
-                        {item.customizations && (
+                      </div>
 
-                          <div className="text-sm text-[#d6b98c] mt-3 space-y-1">
+                      <div className="flex items-center gap-3">
 
-                            {item.customizations.size && (
-                              <p>
-                                Size:
-                                {" "}
-                                {item.customizations.size}
-                              </p>
-                            )}
+                        <button
+                          onClick={() =>
+                            decreaseQuantity(index)
+                          }
+                          className="w-8 h-8 rounded-full bg-white/10"
+                        >
+                          -
+                        </button>
 
-                            {item.customizations.temperature && (
-                              <p>
-                                Temperature:
-                                {" "}
-                                {item.customizations.temperature}
-                              </p>
-                            )}
+                        <span>
+                          {item.quantity}
+                        </span>
 
-                            {item.customizations.milk && (
-                              <p>
-                                Milk:
-                                {" "}
-                                {item.customizations.milk}
-                              </p>
-                            )}
+                        <button
+                          onClick={() =>
+                            increaseQuantity(index)
+                          }
+                          className="w-8 h-8 rounded-full bg-white/10"
+                        >
+                          +
+                        </button>
 
-                            {item.customizations.syrup && (
-                              <p>
-                                Syrup:
-                                {" "}
-                                {item.customizations.syrup}
-                              </p>
-                            )}
+                        <button
+                          onClick={() =>
+                            removeFromCart(index)
+                          }
+                          className="ml-3 text-red-400"
+                        >
+                          Remove
+                        </button>
 
-                            {item.customizations.extras &&
-                              item.customizations.extras.length > 0 && (
+                      </div>
 
-                              <p>
-                                Extras:
-                                {" "}
-                                {item.customizations.extras.join(", ")}
-                              </p>
+                    </div>
 
-                            )}
+                    {item.customizations && (
 
-                            {item.customizations.notes && (
-                              <p>
-                                Notes:
-                                {" "}
-                                {item.customizations.notes}
-                              </p>
-                            )}
+                      <div className="mt-3 text-sm text-[#d6b98c] space-y-1">
 
-                          </div>
+                        {item.customizations.size && (
+                          <p>
+                            Size: {item.customizations.size}
+                          </p>
+                        )}
 
+                        {item.customizations.temperature && (
+                          <p>
+                            Temperature: {item.customizations.temperature}
+                          </p>
+                        )}
+
+                        {item.customizations.milk && (
+                          <p>
+                            Milk: {item.customizations.milk}
+                          </p>
+                        )}
+
+                        {(item.customizations.extras ?? []).length > 0 && (
+                          <p>
+                            Extras:{" "}
+                            {item.customizations.extras?.join(", ")}
+                          </p>
+                        )}
+
+                        {item.customizations.notes && (
+                          <p>
+                            Notes: {item.customizations.notes}
+                          </p>
                         )}
 
                       </div>
 
-                      <p className="text-2xl text-[#d6b98c] whitespace-nowrap">
-
-                        $
-                        {(
-                          item.price *
-                          item.quantity
-                        ).toFixed(2)}
-
-                      </p>
-
-                    </div>
+                    )}
 
                   </div>
 
@@ -290,120 +294,36 @@ export default function CheckoutPage() {
 
               </div>
 
-              <div className="space-y-4 border-t border-white/10 pt-8">
+              <div className="mt-10 space-y-3 border-t border-white/10 pt-6">
 
-                <div className="flex justify-between text-lg">
-
+                <div className="flex justify-between">
                   <p>Subtotal</p>
-
-                  <p>
-                    ${subtotal.toFixed(2)}
-                  </p>
-
+                  <p>${subtotal.toFixed(2)}</p>
                 </div>
 
-                <div className="flex justify-between text-lg">
-
+                <div className="flex justify-between">
                   <p>GST (12.5%)</p>
-
-                  <p>
-                    ${gst.toFixed(2)}
-                  </p>
-
+                  <p>${gst.toFixed(2)}</p>
                 </div>
 
-                <div className="flex justify-between text-3xl text-[#d6b98c] font-semibold">
-
+                <div className="flex justify-between text-2xl text-[#d6b98c] font-semibold pt-4">
                   <p>Total</p>
-
-                  <p>
-                    ${total.toFixed(2)}
-                  </p>
-
+                  <p>${total.toFixed(2)}</p>
                 </div>
 
               </div>
 
               <button
-                onClick={submitOrder}
-                className="mt-12 w-full bg-[#d6b98c] text-black py-5 rounded-full text-lg font-semibold hover:scale-[1.02] transition"
+                onClick={handleSubmitOrder}
+                disabled={loading}
+                className="w-full mt-10 bg-[#d6b98c] text-black py-4 rounded-2xl text-lg font-semibold hover:scale-[1.02] transition"
               >
-                Submit Order
+                {loading ? "Submitting..." : "Submit Order"}
               </button>
 
             </div>
 
-          ) : (
-
-            <div className="backdrop-blur-2xl bg-black/30 border border-white/10 rounded-[40px] p-16 text-center">
-
-              <h2
-                className="text-5xl mb-8 text-[#d6b98c]"
-                style={{
-                  fontFamily:
-                    "Playfair Display",
-                }}
-              >
-                Order Confirmed
-              </h2>
-
-              <p className="text-2xl mb-6">
-
-                Thank you,
-                {" "}
-                {savedOrder?.name}
-
-              </p>
-
-              <div className="inline-block bg-[#d6b98c] text-black px-10 py-5 rounded-full text-3xl font-bold mb-8">
-
-                Order #
-                {savedOrder?.orderNumber}
-
-              </div>
-
-              <div className="space-y-3 text-gray-300 text-lg">
-
-                <p>
-                  Subtotal:
-                  {" "}
-                  $
-                  {savedOrder?.subtotal?.toFixed(2)}
-                </p>
-
-                <p>
-                  GST:
-                  {" "}
-                  $
-                  {savedOrder?.gst?.toFixed(2)}
-                </p>
-
-                <p className="text-[#d6b98c] text-2xl">
-
-                  Total:
-                  {" "}
-                  $
-                  {savedOrder?.total?.toFixed(2)}
-
-                </p>
-
-                <p className="pt-4 text-sm text-gray-400">
-
-                  Saved on this device
-
-                </p>
-
-                <p className="text-sm text-gray-400">
-
-                  {savedOrder?.createdAt}
-
-                </p>
-
-              </div>
-
-            </div>
-
-          )}
+          </div>
 
         </div>
 
@@ -412,7 +332,5 @@ export default function CheckoutPage() {
       <Footer />
 
     </main>
-
   );
-
 }
