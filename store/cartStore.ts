@@ -1,43 +1,46 @@
-"use client";
-
 import { create } from "zustand";
 
-export type CartItem = {
+export interface CartItem {
+
   id: number;
+
   name: string;
+
   price: number;
+
   quantity: number;
-  type?: string;
 
   customizations?: {
-    temperature?: string;
-    milk?: string;
-    extras?: string[];
-    notes?: string;
-  };
-};
 
-type CartStore = {
+    size?: string;
+
+    temperature?: string;
+
+    milk?: string;
+
+    syrup?: string;
+
+    extras?: string[];
+
+    notes?: string;
+
+  };
+
+}
+
+interface CartStore {
+
   cart: CartItem[];
 
-  addToCart: (
-    item: CartItem
-  ) => void;
+  addToCart: (item: CartItem) => void;
 
   removeFromCart: (
     index: number
   ) => void;
 
-  increaseQuantity: (
-    index: number
-  ) => void;
-
-  decreaseQuantity: (
-    index: number
-  ) => void;
-
   clearCart: () => void;
-};
+
+}
 
 export const useCartStore =
   create<CartStore>((set) => ({
@@ -48,10 +51,7 @@ export const useCartStore =
 
       set((state) => ({
 
-        cart: [
-          ...state.cart,
-          item,
-        ],
+        cart: [...state.cart, item],
 
       })),
 
@@ -65,49 +65,12 @@ export const useCartStore =
 
       })),
 
-    increaseQuantity: (index) =>
-
-      set((state) => ({
-
-        cart: state.cart.map(
-          (item, i) =>
-
-            i === index
-              ? {
-                  ...item,
-                  quantity:
-                    item.quantity + 1,
-                }
-              : item
-        ),
-
-      })),
-
-    decreaseQuantity: (index) =>
-
-      set((state) => ({
-
-        cart: state.cart
-          .map((item, i) =>
-
-            i === index
-              ? {
-                  ...item,
-                  quantity:
-                    item.quantity - 1,
-                }
-              : item
-          )
-          .filter(
-            (item) =>
-              item.quantity > 0
-          ),
-
-      })),
-
     clearCart: () =>
+
       set({
+
         cart: [],
+
       }),
 
   }));
