@@ -1,3 +1,5 @@
+"use client";
+
 import { create } from "zustand";
 
 export type CartItem = {
@@ -5,6 +7,7 @@ export type CartItem = {
   name: string;
   price: number;
   quantity: number;
+  type?: string;
 
   customizations?: {
     temperature?: string;
@@ -22,15 +25,15 @@ type CartStore = {
   ) => void;
 
   removeFromCart: (
-    id: number
+    index: number
   ) => void;
 
   increaseQuantity: (
-    id: number
+    index: number
   ) => void;
 
   decreaseQuantity: (
-    id: number
+    index: number
   ) => void;
 
   clearCart: () => void;
@@ -42,68 +45,52 @@ export const useCartStore =
     cart: [],
 
     addToCart: (item) =>
-      set((state) => {
 
-        const existingItem =
-          state.cart.find(
-            (cartItem) =>
-              cartItem.id === item.id
-          );
-
-        if (existingItem) {
-
-          return {
-            cart: state.cart.map(
-              (cartItem) =>
-
-                cartItem.id === item.id
-                  ? {
-                      ...cartItem,
-                      quantity:
-                        cartItem.quantity + 1,
-                    }
-                  : cartItem
-            ),
-          };
-
-        }
-
-        return {
-          cart: [
-            ...state.cart,
-            item,
-          ],
-        };
-
-      }),
-
-    removeFromCart: (id) =>
       set((state) => ({
+
+        cart: [
+          ...state.cart,
+          item,
+        ],
+
+      })),
+
+    removeFromCart: (index) =>
+
+      set((state) => ({
+
         cart: state.cart.filter(
-          (item) => item.id !== id
+          (_, i) => i !== index
         ),
+
       })),
 
-    increaseQuantity: (id) =>
-      set((state) => ({
-        cart: state.cart.map((item) =>
+    increaseQuantity: (index) =>
 
-          item.id === id
-            ? {
-                ...item,
-                quantity:
-                  item.quantity + 1,
-              }
-            : item
+      set((state) => ({
+
+        cart: state.cart.map(
+          (item, i) =>
+
+            i === index
+              ? {
+                  ...item,
+                  quantity:
+                    item.quantity + 1,
+                }
+              : item
         ),
+
       })),
 
-    decreaseQuantity: (id) =>
+    decreaseQuantity: (index) =>
+
       set((state) => ({
+
         cart: state.cart
-          .map((item) =>
+          .map((item, i) =>
 
-            item.id === id
+            i === index
               ? {
                   ...item,
                   quantity:
@@ -112,8 +99,10 @@ export const useCartStore =
               : item
           )
           .filter(
-            (item) => item.quantity > 0
+            (item) =>
+              item.quantity > 0
           ),
+
       })),
 
     clearCart: () =>

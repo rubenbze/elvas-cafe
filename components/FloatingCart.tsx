@@ -15,172 +15,335 @@ import { useCartStore } from "@/store/cartStore";
 
 export default function FloatingCart() {
 
-  const [open, setOpen] = useState(false);
+  const {
+    cart,
+    removeFromCart,
+    increaseQuantity,
+    decreaseQuantity,
+  } = useCartStore();
 
-  const cart = useCartStore(
-    (state) => state.cart
-  );
+  const [open, setOpen] =
+    useState(false);
 
-  const addToCart = useCartStore(
-    (state) => state.addToCart
-  );
-
-  const decreaseQuantity = useCartStore(
-    (state) => state.decreaseQuantity
-  );
-
-  const removeFromCart = useCartStore(
-    (state) => state.removeFromCart
-  );
-
-  const totalItems = cart.reduce(
-    (acc, item) => acc + item.quantity,
-    0
-  );
-
-  const totalPrice = cart.reduce(
+  const subtotal = cart.reduce(
     (acc, item) =>
       acc + item.price * item.quantity,
     0
   );
 
+  const gst = subtotal * 0.125;
+
+  const total = subtotal + gst;
+
+  const totalItems = cart.reduce(
+    (acc, item) =>
+      acc + item.quantity,
+    0
+  );
+
   return (
     <>
+
       {/* FLOATING BUTTON */}
 
       <button
-        onClick={() => setOpen(!open)}
-        className="fixed top-28 right-6 z-[100] bg-[#d6b98c] text-black w-16 h-16 rounded-full shadow-2xl flex items-center justify-center hover:scale-105 transition"
+        onClick={() =>
+          setOpen(!open)
+        }
+        className="fixed bottom-8 right-8 z-50 bg-[#d6b98c] text-black p-5 rounded-full shadow-2xl hover:scale-105 transition"
       >
 
-        <ShoppingBag size={28} />
+        <div className="relative">
 
-        {totalItems > 0 && (
+          <ShoppingBag size={28} />
 
-          <div className="absolute -top-2 -right-2 bg-black text-white text-xs w-7 h-7 rounded-full flex items-center justify-center">
+          {totalItems > 0 && (
 
-            {totalItems}
+            <div className="absolute -top-3 -right-3 w-6 h-6 rounded-full bg-black text-white text-xs flex items-center justify-center">
 
-          </div>
+              {totalItems}
 
-        )}
+            </div>
+
+          )}
+
+        </div>
 
       </button>
 
       {/* CART PANEL */}
 
-      {open && (
+      <div
+        className={`fixed top-0 right-0 h-screen w-full md:w-[450px] bg-[#0d0d0d] border-l border-white/10 z-50 transition-transform duration-500 overflow-y-auto ${
+          open
+            ? "translate-x-0"
+            : "translate-x-full"
+        }`}
+      >
 
-        <div className="fixed top-48 right-6 z-[100] w-[380px] max-h-[70vh] overflow-y-auto bg-black/90 backdrop-blur-2xl border border-white/10 rounded-[35px] p-8 shadow-2xl">
+        {/* HEADER */}
 
-          <h2 className="text-3xl mb-8 text-white">
+        <div className="flex items-center justify-between p-6 border-b border-white/10">
+
+          <h2 className="text-3xl text-[#f5e6c8]">
             Your Order
           </h2>
 
-          {cart.length === 0 ? (
+          <button
+            onClick={() =>
+              setOpen(false)
+            }
+            className="text-2xl"
+          >
+            ✕
+          </button>
 
-            <p className="text-gray-400">
-              Your cart is empty.
+        </div>
+
+        {/* EMPTY */}
+
+        {cart.length === 0 && (
+
+          <div className="flex flex-col items-center justify-center h-[70vh] text-center px-10">
+
+            <ShoppingBag
+              size={70}
+              className="mb-6 text-[#d6b98c]"
+            />
+
+            <h3 className="text-2xl mb-4">
+              Your cart is empty
+            </h3>
+
+            <p className="text-gray-400 leading-7">
+              Add handcrafted drinks,
+              pastries, and desserts
+              to begin your order.
             </p>
 
-          ) : (
+          </div>
 
-            <>
-              <div className="space-y-6">
+        )}
 
-                {cart.map((item) => (
+        {/* ITEMS */}
 
-                  <div
-                    key={item.id}
-                    className="border-b border-white/10 pb-5"
-                  >
+        <div className="p-6 space-y-6">
 
-                    <div className="flex justify-between items-center mb-3">
+          {cart.map(
+            (item, index) => (
 
-                      <div>
+              <div
+                key={index}
+                className="bg-white/5 border border-white/10 rounded-[30px] p-5"
+              >
 
-                        <h3 className="text-white">
-                          {item.name}
-                        </h3>
+                <div className="flex items-start justify-between gap-4">
 
-                        <p className="text-[#d6b98c]">
-                          ${item.price}
-                        </p>
+                  <div>
 
-                      </div>
+                    <h3 className="text-xl mb-2">
+                      {item.name}
+                    </h3>
 
-                      <button
-                        onClick={() =>
-                          removeFromCart(item.id)
-                        }
-                        className="text-red-400"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-
-                    </div>
-
-                    <div className="flex items-center gap-4">
-
-                      <button
-                        onClick={() =>
-                          decreaseQuantity(item.id)
-                        }
-                        className="bg-white/10 w-8 h-8 rounded-full flex items-center justify-center"
-                      >
-                        <Minus size={16} />
-                      </button>
-
-                      <span>
-                        {item.quantity}
-                      </span>
-
-                      <button
-                        onClick={() =>
-                          addToCart({
-                            ...item,
-                            quantity: 1,
-                          })
-                        }
-                        className="bg-white/10 w-8 h-8 rounded-full flex items-center justify-center"
-                      >
-                        <Plus size={16} />
-                      </button>
-
-                    </div>
+                    <p className="text-[#d6b98c] text-lg">
+                      $
+                      {(
+                        item.price *
+                        item.quantity
+                      ).toFixed(2)}
+                    </p>
 
                   </div>
 
-                ))}
-
-              </div>
-
-              <div className="mt-8 border-t border-white/10 pt-6">
-
-                <div className="flex justify-between text-xl mb-6">
-
-                  <span>Total</span>
-
-                  <span className="text-[#d6b98c]">
-                    ${totalPrice}
-                  </span>
+                  <button
+                    onClick={() =>
+                      removeFromCart(
+                        index
+                      )
+                    }
+                    className="text-red-400 hover:scale-110 transition"
+                  >
+                    <Trash2 size={18} />
+                  </button>
 
                 </div>
 
-                <Link
-                  href="/checkout"
-                  className="block text-center bg-[#d6b98c] text-black py-4 rounded-full font-semibold hover:scale-105 transition"
-                >
-                  View Checkout
-                </Link>
+                {/* CUSTOMIZATIONS */}
+
+                {item.customizations && (
+
+                  <div className="mt-5 space-y-2 text-sm text-gray-300">
+
+                    {item.customizations
+                      .temperature && (
+
+                      <p>
+
+                        • Temperature:{" "}
+                        {
+                          item
+                            .customizations
+                            .temperature
+                        }
+
+                      </p>
+
+                    )}
+
+                    {item.customizations
+                      .milk && (
+
+                      <p>
+
+                        • Milk:{" "}
+                        {
+                          item
+                            .customizations
+                            .milk
+                        }
+
+                      </p>
+
+                    )}
+
+                    {item.customizations
+                      .extras &&
+                      item
+                        .customizations
+                        .extras.length >
+                        0 && (
+
+                      <p>
+
+                        • Extras:{" "}
+                        {item.customizations.extras.join(
+                          ", "
+                        )}
+
+                      </p>
+
+                    )}
+
+                    {item.customizations
+                      .notes && (
+
+                      <p>
+
+                        • Notes:{" "}
+                        {
+                          item
+                            .customizations
+                            .notes
+                        }
+
+                      </p>
+
+                    )}
+
+                  </div>
+
+                )}
+
+                {/* QUANTITY */}
+
+                <div className="flex items-center justify-between mt-6">
+
+                  <div className="flex items-center gap-3">
+
+                    <button
+                      onClick={() =>
+                        decreaseQuantity(
+                          index
+                        )
+                      }
+                      className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition"
+                    >
+                      <Minus size={16} />
+                    </button>
+
+                    <span className="text-lg">
+
+                      {item.quantity}
+
+                    </span>
+
+                    <button
+                      onClick={() =>
+                        increaseQuantity(
+                          index
+                        )
+                      }
+                      className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition"
+                    >
+                      <Plus size={16} />
+                    </button>
+
+                  </div>
+
+                </div>
 
               </div>
-            </>
+
+            )
           )}
 
         </div>
 
-      )}
+        {/* TOTALS */}
+
+        {cart.length > 0 && (
+
+          <div className="sticky bottom-0 bg-[#0d0d0d] border-t border-white/10 p-6">
+
+            <div className="space-y-3 mb-6">
+
+              <div className="flex justify-between text-gray-300">
+
+                <p>Subtotal</p>
+
+                <p>
+                  $
+                  {subtotal.toFixed(2)}
+                </p>
+
+              </div>
+
+              <div className="flex justify-between text-gray-300">
+
+                <p>GST (12.5%)</p>
+
+                <p>
+                  $
+                  {gst.toFixed(2)}
+                </p>
+
+              </div>
+
+              <div className="flex justify-between text-2xl text-[#d6b98c]">
+
+                <p>Total</p>
+
+                <p>
+                  $
+                  {total.toFixed(2)}
+                </p>
+
+              </div>
+
+            </div>
+
+            <Link
+              href="/checkout"
+              className="block text-center bg-[#d6b98c] text-black py-4 rounded-full text-lg font-semibold hover:scale-[1.02] transition"
+            >
+              View Checkout
+            </Link>
+
+          </div>
+
+        )}
+
+      </div>
 
     </>
   );
