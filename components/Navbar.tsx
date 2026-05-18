@@ -24,17 +24,33 @@ export default function Navbar() {
 
         {/* NAVIGATION */}
 
-        <nav className="hidden md:flex items-center gap-8 uppercase tracking-[0.2em] text-sm text-white">
+        <nav className="hidden md:flex items-center gap-10 uppercase tracking-[0.2em] text-sm text-white">
 
-          <Link href="/" className="hover:text-[#d6b98c] transition">
+          <Link
+            href="/"
+            className="hover:text-[#d6b98c] transition"
+          >
             Home
           </Link>
 
-          <Link href="/menu" className="hover:text-[#d6b98c] transition">
+          <Link
+            href="/menu"
+            className="hover:text-[#d6b98c] transition"
+          >
             Menu
           </Link>
 
-          <Link href="/about" className="hover:text-[#d6b98c] transition">
+          <Link
+            href="/order"
+            className="hover:text-[#d6b98c] transition"
+          >
+            Order Online
+          </Link>
+
+          <Link
+            href="/about"
+            className="hover:text-[#d6b98c] transition"
+          >
             About
           </Link>
 
