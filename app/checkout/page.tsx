@@ -12,13 +12,16 @@ import "@fontsource/playfair-display";
 
 export default function CheckoutPage() {
 
-  const cart = useCartStore((state) => state.cart);
+  const cart = useCartStore(
+    (state) => state.cart
+  );
 
   const clearCart = useCartStore(
     (state) => state.clearCart
   );
 
   const [name, setName] = useState("");
+
   const [phone, setPhone] = useState("");
 
   const [submitted, setSubmitted] =
@@ -27,20 +30,27 @@ export default function CheckoutPage() {
   const [savedOrder, setSavedOrder] =
     useState<any>(null);
 
-  const subtotal = cart.reduce(
+  const displayedSubtotal = cart.reduce(
     (total, item) =>
       total + item.price * item.quantity,
     0
   );
 
-  const gst = subtotal * 0.125;
+  const subtotal =
+    displayedSubtotal / 1.125;
 
-  const total = subtotal + gst;
+  const gst =
+    displayedSubtotal - subtotal;
+
+  const total =
+    displayedSubtotal;
 
   useEffect(() => {
 
     const existingOrder =
-      localStorage.getItem("latestOrder");
+      localStorage.getItem(
+        "latestOrder"
+      );
 
     if (existingOrder) {
 
@@ -103,6 +113,21 @@ export default function CheckoutPage() {
     localStorage.setItem(
       "latestOrder",
       JSON.stringify(orderData)
+    );
+
+    const existingHistory =
+      JSON.parse(
+        localStorage.getItem(
+          "orderHistory"
+        ) || "[]"
+      );
+
+    localStorage.setItem(
+      "orderHistory",
+      JSON.stringify([
+        orderData,
+        ...existingHistory,
+      ])
     );
 
     setSavedOrder(orderData);
@@ -172,7 +197,7 @@ export default function CheckoutPage() {
                     className="border-b border-white/10 pb-6"
                   >
 
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-6">
 
                       <div>
 
@@ -181,7 +206,9 @@ export default function CheckoutPage() {
                         </h2>
 
                         <p className="text-gray-400 mt-2">
-                          Qty: {item.quantity}
+                          Qty:
+                          {" "}
+                          {item.quantity}
                         </p>
 
                         {item.customizations && (
@@ -245,7 +272,7 @@ export default function CheckoutPage() {
 
                       </div>
 
-                      <p className="text-2xl text-[#d6b98c]">
+                      <p className="text-2xl text-[#d6b98c] whitespace-nowrap">
 
                         $
                         {(
@@ -335,20 +362,41 @@ export default function CheckoutPage() {
 
               </div>
 
-              <div className="space-y-2 text-gray-300">
+              <div className="space-y-3 text-gray-300 text-lg">
 
                 <p>
+                  Subtotal:
+                  {" "}
+                  $
+                  {savedOrder?.subtotal?.toFixed(2)}
+                </p>
+
+                <p>
+                  GST:
+                  {" "}
+                  $
+                  {savedOrder?.gst?.toFixed(2)}
+                </p>
+
+                <p className="text-[#d6b98c] text-2xl">
+
                   Total:
                   {" "}
-                  ${savedOrder?.total?.toFixed(2)}
+                  $
+                  {savedOrder?.total?.toFixed(2)}
+
                 </p>
 
-                <p>
+                <p className="pt-4 text-sm text-gray-400">
+
                   Saved on this device
+
                 </p>
 
-                <p>
+                <p className="text-sm text-gray-400">
+
                   {savedOrder?.createdAt}
+
                 </p>
 
               </div>
