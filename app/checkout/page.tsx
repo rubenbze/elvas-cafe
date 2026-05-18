@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -14,7 +14,9 @@ import "@fontsource/playfair-display";
 
 export default function CheckoutPage() {
 
-  const cart = useCartStore((state) => state.cart);
+  const cart = useCartStore(
+    (state) => state.cart
+  );
 
   const clearCart = useCartStore(
     (state) => state.clearCart
@@ -38,12 +40,15 @@ export default function CheckoutPage() {
 
   const [error, setError] = useState("");
 
-  const [success, setSuccess] = useState("");
+  const [success, setSuccess] =
+    useState("");
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
 
   const subtotal = cart.reduce(
-    (acc, item) => acc + item.price * item.quantity,
+    (acc, item) =>
+      acc + item.price * item.quantity,
     0
   );
 
@@ -57,31 +62,58 @@ export default function CheckoutPage() {
     setSuccess("");
 
     if (!name || !phone) {
-      setError("Please fill out all required fields.");
+
+      setError(
+        "Please fill out all required fields."
+      );
+
       return;
+
     }
 
     if (cart.length === 0) {
-      setError("Your cart is empty.");
+
+      setError(
+        "Your cart is empty."
+      );
+
       return;
+
+    }
+
+    if (!supabase) {
+
+      setError(
+        "Supabase connection failed."
+      );
+
+      return;
+
     }
 
     setLoading(true);
 
-    const orderNumber = Math.floor(
-      1000 + Math.random() * 9000
-    );
+    const orderNumber =
+      `Order #${Math.floor(
+        1000 + Math.random() * 9000
+      )}`;
 
     const { error } = await supabase
       .from("orders")
       .insert([
         {
           order_number: orderNumber,
+
           customer_name: name,
+
           customer_phone: phone,
+
           items: cart,
+
           subtotal,
+
           gst,
+
           total,
         },
       ]);
@@ -89,17 +121,46 @@ export default function CheckoutPage() {
     setLoading(false);
 
     if (error) {
-      setError("Failed to place order.");
+
+      console.error(error);
+
+      setError(
+        "Failed to place order."
+      );
+
       return;
+
     }
 
     const orderData = {
+
       orderNumber,
+
       name,
+
       phone,
+
       total,
-      createdAt: new Date().toISOString(),
+
+      createdAt:
+        new Date().toISOString(),
+
     };
+
+    const existingHistory =
+      JSON.parse(
+        localStorage.getItem(
+          "orderHistory"
+        ) || "[]"
+      );
+
+    localStorage.setItem(
+      "orderHistory",
+      JSON.stringify([
+        orderData,
+        ...existingHistory,
+      ])
+    );
 
     localStorage.setItem(
       "latestOrder",
@@ -107,13 +168,15 @@ export default function CheckoutPage() {
     );
 
     setSuccess(
-      `Order #${orderNumber} placed successfully.`
+      `${orderNumber} placed successfully.`
     );
 
     clearCart();
+
   }
 
   return (
+
     <main className="relative min-h-screen overflow-hidden text-white">
 
       <PageBackground />
@@ -127,7 +190,8 @@ export default function CheckoutPage() {
           <h1
             className="text-5xl md:text-7xl mb-12 text-center"
             style={{
-              fontFamily: "Playfair Display",
+              fontFamily:
+                "Playfair Display",
             }}
           >
             Checkout
@@ -135,7 +199,7 @@ export default function CheckoutPage() {
 
           <div className="grid lg:grid-cols-2 gap-12">
 
-            {/* LEFT */}
+            {/* CUSTOMER INFO */}
 
             <div className="bg-black/30 border border-white/10 rounded-3xl p-8 backdrop-blur-xl">
 
@@ -168,20 +232,28 @@ export default function CheckoutPage() {
               </div>
 
               {error && (
+
                 <div className="mt-6 bg-red-500/20 border border-red-500 rounded-xl p-4 text-red-300">
+
                   {error}
+
                 </div>
+
               )}
 
               {success && (
+
                 <div className="mt-6 bg-green-500/20 border border-green-500 rounded-xl p-4 text-green-300">
+
                   {success}
+
                 </div>
+
               )}
 
             </div>
 
-            {/* RIGHT */}
+            {/* ORDER SUMMARY */}
 
             <div className="bg-black/30 border border-white/10 rounded-3xl p-8 backdrop-blur-xl">
 
@@ -207,7 +279,11 @@ export default function CheckoutPage() {
                         </h3>
 
                         <p className="text-[#d6b98c] mt-1">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          $
+                          {(
+                            item.price *
+                            item.quantity
+                          ).toFixed(2)}
                         </p>
 
                       </div>
@@ -249,45 +325,6 @@ export default function CheckoutPage() {
 
                     </div>
 
-                    {item.customizations && (
-
-                      <div className="mt-3 text-sm text-[#d6b98c] space-y-1">
-
-                        {item.customizations.size && (
-                          <p>
-                            Size: {item.customizations.size}
-                          </p>
-                        )}
-
-                        {item.customizations.temperature && (
-                          <p>
-                            Temperature: {item.customizations.temperature}
-                          </p>
-                        )}
-
-                        {item.customizations.milk && (
-                          <p>
-                            Milk: {item.customizations.milk}
-                          </p>
-                        )}
-
-                        {(item.customizations.extras ?? []).length > 0 && (
-                          <p>
-                            Extras:{" "}
-                            {item.customizations.extras?.join(", ")}
-                          </p>
-                        )}
-
-                        {item.customizations.notes && (
-                          <p>
-                            Notes: {item.customizations.notes}
-                          </p>
-                        )}
-
-                      </div>
-
-                    )}
-
                   </div>
 
                 ))}
@@ -297,18 +334,33 @@ export default function CheckoutPage() {
               <div className="mt-10 space-y-3 border-t border-white/10 pt-6">
 
                 <div className="flex justify-between">
+
                   <p>Subtotal</p>
-                  <p>${subtotal.toFixed(2)}</p>
+
+                  <p>
+                    ${subtotal.toFixed(2)}
+                  </p>
+
                 </div>
 
                 <div className="flex justify-between">
+
                   <p>GST (12.5%)</p>
-                  <p>${gst.toFixed(2)}</p>
+
+                  <p>
+                    ${gst.toFixed(2)}
+                  </p>
+
                 </div>
 
                 <div className="flex justify-between text-2xl text-[#d6b98c] font-semibold pt-4">
+
                   <p>Total</p>
-                  <p>${total.toFixed(2)}</p>
+
+                  <p>
+                    ${total.toFixed(2)}
+                  </p>
+
                 </div>
 
               </div>
@@ -318,7 +370,9 @@ export default function CheckoutPage() {
                 disabled={loading}
                 className="w-full mt-10 bg-[#d6b98c] text-black py-4 rounded-2xl text-lg font-semibold hover:scale-[1.02] transition"
               >
-                {loading ? "Submitting..." : "Submit Order"}
+                {loading
+                  ? "Submitting..."
+                  : "Submit Order"}
               </button>
 
             </div>
@@ -332,5 +386,7 @@ export default function CheckoutPage() {
       <Footer />
 
     </main>
+
   );
+
 }
