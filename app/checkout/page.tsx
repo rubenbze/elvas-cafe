@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageBackground from "@/components/PageBackground";
@@ -7,8 +9,6 @@ import PageBackground from "@/components/PageBackground";
 import { useCartStore } from "@/store/cartStore";
 
 import "@fontsource/playfair-display";
-
-import { useState } from "react";
 
 export default function CheckoutPage() {
 
@@ -21,32 +21,91 @@ export default function CheckoutPage() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
 
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted] =
+    useState(false);
 
-  const subtotal = cart.reduce((total, item) => {
+  const [savedOrder, setSavedOrder] =
+    useState<any>(null);
 
-    return total + (Number(item.price) * item.quantity);
-
-  }, 0);
+  const subtotal = cart.reduce(
+    (total, item) =>
+      total + item.price * item.quantity,
+    0
+  );
 
   const gst = subtotal * 0.125;
 
-  const finalTotal = subtotal + gst;
+  const total = subtotal + gst;
 
-  const orderNumber =
-    Math.floor(100 + Math.random() * 900);
+  useEffect(() => {
+
+    const existingOrder =
+      localStorage.getItem("latestOrder");
+
+    if (existingOrder) {
+
+      setSavedOrder(
+        JSON.parse(existingOrder)
+      );
+
+    }
+
+  }, []);
 
   const submitOrder = () => {
 
     if (!name || !phone) {
-      alert("Please complete all required fields.");
+
+      alert(
+        "Please complete all required fields."
+      );
+
       return;
+
     }
 
     if (cart.length === 0) {
-      alert("Your cart is empty.");
+
+      alert(
+        "Your cart is empty."
+      );
+
       return;
+
     }
+
+    const orderNumber =
+      Math.floor(
+        1000 + Math.random() * 9000
+      );
+
+    const orderData = {
+
+      orderNumber,
+
+      name,
+
+      phone,
+
+      items: cart,
+
+      subtotal,
+
+      gst,
+
+      total,
+
+      createdAt:
+        new Date().toLocaleString(),
+
+    };
+
+    localStorage.setItem(
+      "latestOrder",
+      JSON.stringify(orderData)
+    );
+
+    setSavedOrder(orderData);
 
     setSubmitted(true);
 
@@ -55,6 +114,7 @@ export default function CheckoutPage() {
   };
 
   return (
+
     <main className="relative min-h-screen overflow-hidden text-white">
 
       <PageBackground />
@@ -68,7 +128,8 @@ export default function CheckoutPage() {
           <h1
             className="text-5xl md:text-7xl text-center mb-16"
             style={{
-              fontFamily: "Playfair Display",
+              fontFamily:
+                "Playfair Display",
             }}
           >
             Checkout
@@ -77,8 +138,6 @@ export default function CheckoutPage() {
           {!submitted ? (
 
             <div className="backdrop-blur-2xl bg-black/30 border border-white/10 rounded-[40px] p-10">
-
-              {/* CUSTOMER INFO */}
 
               <div className="grid md:grid-cols-2 gap-6 mb-12">
 
@@ -104,15 +163,13 @@ export default function CheckoutPage() {
 
               </div>
 
-              {/* CART ITEMS */}
-
               <div className="space-y-6 mb-12">
 
                 {cart.map((item, index) => (
 
                   <div
                     key={index}
-                    className="border-b border-white/10 pb-5"
+                    className="border-b border-white/10 pb-6"
                   >
 
                     <div className="flex items-center justify-between">
@@ -123,45 +180,62 @@ export default function CheckoutPage() {
                           {item.name}
                         </h2>
 
-                        <p className="text-gray-400 text-sm mt-2">
-
+                        <p className="text-gray-400 mt-2">
                           Qty: {item.quantity}
-
                         </p>
 
                         {item.customizations && (
 
-                          <div className="text-sm text-[#d6b98c] mt-2 space-y-1">
+                          <div className="text-sm text-[#d6b98c] mt-3 space-y-1">
 
                             {item.customizations.size && (
                               <p>
-                                Size: {item.customizations.size}
+                                Size:
+                                {" "}
+                                {item.customizations.size}
                               </p>
                             )}
 
                             {item.customizations.temperature && (
                               <p>
-                                Temperature: {item.customizations.temperature}
+                                Temperature:
+                                {" "}
+                                {item.customizations.temperature}
                               </p>
                             )}
 
                             {item.customizations.milk && (
                               <p>
-                                Milk: {item.customizations.milk}
+                                Milk:
+                                {" "}
+                                {item.customizations.milk}
                               </p>
                             )}
 
                             {item.customizations.syrup && (
                               <p>
-                                Syrup: {item.customizations.syrup}
+                                Syrup:
+                                {" "}
+                                {item.customizations.syrup}
                               </p>
                             )}
 
-                            {item.customizations.extras?.length > 0 && (
+                            {item.customizations.extras &&
+                              item.customizations.extras.length > 0 && (
+
                               <p>
                                 Extras:
                                 {" "}
                                 {item.customizations.extras.join(", ")}
+                              </p>
+
+                            )}
+
+                            {item.customizations.notes && (
+                              <p>
+                                Notes:
+                                {" "}
+                                {item.customizations.notes}
                               </p>
                             )}
 
@@ -174,7 +248,10 @@ export default function CheckoutPage() {
                       <p className="text-2xl text-[#d6b98c]">
 
                         $
-                        {(item.price * item.quantity).toFixed(2)}
+                        {(
+                          item.price *
+                          item.quantity
+                        ).toFixed(2)}
 
                       </p>
 
@@ -185,8 +262,6 @@ export default function CheckoutPage() {
                 ))}
 
               </div>
-
-              {/* TOTALS */}
 
               <div className="space-y-4 border-t border-white/10 pt-8">
 
@@ -215,14 +290,12 @@ export default function CheckoutPage() {
                   <p>Total</p>
 
                   <p>
-                    ${finalTotal.toFixed(2)}
+                    ${total.toFixed(2)}
                   </p>
 
                 </div>
 
               </div>
-
-              {/* SUBMIT */}
 
               <button
                 onClick={submitOrder}
@@ -240,29 +313,45 @@ export default function CheckoutPage() {
               <h2
                 className="text-5xl mb-8 text-[#d6b98c]"
                 style={{
-                  fontFamily: "Playfair Display",
+                  fontFamily:
+                    "Playfair Display",
                 }}
               >
                 Order Confirmed
               </h2>
 
-              <p className="text-2xl mb-4">
-                Thank you, {name}
+              <p className="text-2xl mb-6">
+
+                Thank you,
+                {" "}
+                {savedOrder?.name}
+
               </p>
 
-              <p className="text-gray-300 text-lg mb-8">
-                Your order has been successfully placed.
-              </p>
+              <div className="inline-block bg-[#d6b98c] text-black px-10 py-5 rounded-full text-3xl font-bold mb-8">
 
-              <div className="inline-block bg-[#d6b98c] text-black px-10 py-5 rounded-full text-2xl font-bold">
-
-                Order #{orderNumber}
+                Order #
+                {savedOrder?.orderNumber}
 
               </div>
 
-              <p className="mt-8 text-gray-400">
-                Please show this number when collecting your order.
-              </p>
+              <div className="space-y-2 text-gray-300">
+
+                <p>
+                  Total:
+                  {" "}
+                  ${savedOrder?.total?.toFixed(2)}
+                </p>
+
+                <p>
+                  Saved on this device
+                </p>
+
+                <p>
+                  {savedOrder?.createdAt}
+                </p>
+
+              </div>
 
             </div>
 
@@ -275,5 +364,7 @@ export default function CheckoutPage() {
       <Footer />
 
     </main>
+
   );
+
 }
