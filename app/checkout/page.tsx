@@ -43,7 +43,14 @@ export default function CheckoutPage() {
 
   const gst = subtotal * 0.125;
 
-  const total = subtotal + gst;
+  const subtotal = cart.reduce(
+  (acc, item) => acc + item.price * item.quantity,
+  0
+);
+
+const gst = subtotal * 0.125;
+
+const total = subtotal;
 
   useEffect(() => {
 
