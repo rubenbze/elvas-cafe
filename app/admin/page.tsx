@@ -23,18 +23,12 @@ export default function AdminPage() {
   const [reservations, setReservations] =
     useState<any[]>([]);
 
-  const [menuItems, setMenuItems] =
-    useState<any[]>([]);
+  const [refreshing, setRefreshing] =
+    useState(false);
 
-  const [newItem, setNewItem] =
-    useState({
-      name: "",
-      price: "",
-      category: "",
-      description: "",
-    });
+  async function fetchDashboard() {
 
-  async function fetchData() {
+    setRefreshing(true);
 
     const ordersData =
       await supabase
@@ -52,11 +46,6 @@ export default function AdminPage() {
           ascending: false,
         });
 
-    const menuData =
-      await supabase
-        .from("menu_items")
-        .select("*");
-
     setOrders(
       ordersData.data || []
     );
@@ -65,9 +54,7 @@ export default function AdminPage() {
       reservationsData.data || []
     );
 
-    setMenuItems(
-      menuData.data || []
-    );
+    setRefreshing(false);
 
   }
 
@@ -75,7 +62,17 @@ export default function AdminPage() {
 
     if (authenticated) {
 
-      fetchData();
+      fetchDashboard();
+
+      const interval =
+        setInterval(() => {
+
+          fetchDashboard();
+
+        }, 10000);
+
+      return () =>
+        clearInterval(interval);
 
     }
 
@@ -89,95 +86,9 @@ export default function AdminPage() {
 
     } else {
 
-      alert("Wrong password");
+      alert("Wrong Password");
 
     }
-
-  }
-
-  async function addMenuItem() {
-
-    await supabase
-      .from("menu_items")
-      .insert([
-        {
-          name: newItem.name,
-          price: Number(newItem.price),
-          category:
-            newItem.category,
-          description:
-            newItem.description,
-          available: true,
-        },
-      ]);
-
-    setNewItem({
-      name: "",
-      price: "",
-      category: "",
-      description: "",
-    });
-
-    fetchData();
-
-  }
-
-  async function deleteItem(id: number) {
-
-    await supabase
-      .from("menu_items")
-      .delete()
-      .eq("id", id);
-
-    fetchData();
-
-  }
-
-  async function toggleAvailability(
-    id: number,
-    current: boolean
-  ) {
-
-    await supabase
-      .from("menu_items")
-      .update({
-        available: !current,
-      })
-      .eq("id", id);
-
-    fetchData();
-
-  }
-
-  async function updateReservationStatus(
-    id: number,
-    status: string
-  ) {
-
-    await supabase
-      .from("reservations")
-      .update({
-        status,
-      })
-      .eq("id", id);
-
-    fetchData();
-
-  }
-
-  async function updateOrderStatus(
-    id: number,
-    status: string
-  ) {
-
-    await supabase
-      .from("orders")
-      .update({
-        status,
-      })
-      .eq("id", id);
-
-    fetchData();
 
   }
 
@@ -185,11 +96,11 @@ export default function AdminPage() {
 
     return (
 
-      <main className="min-h-screen bg-black text-white flex items-center justify-center px-6">
+      <main className="min-h-screen bg-black flex items-center justify-center px-6 text-white">
 
-        <div className="bg-[#111] border border-white/10 rounded-3xl p-10 w-full max-w-md">
+        <div className="w-full max-w-md bg-[#111] border border-white/10 rounded-[40px] p-10">
 
-          <h1 className="text-5xl text-center text-[#f5e6c8] mb-8">
+          <h1 className="text-5xl text-center text-[#f5e6c8] mb-10">
             Admin Login
           </h1>
 
@@ -200,12 +111,12 @@ export default function AdminPage() {
             onChange={(e) =>
               setPassword(e.target.value)
             }
-            className="w-full bg-black/30 border border-white/10 rounded-2xl p-4 mb-6 outline-none"
+            className="w-full bg-black/30 border border-white/10 rounded-2xl p-5 outline-none mb-6"
           />
 
           <button
             onClick={login}
-            className="w-full bg-[#d6b98c] text-black py-4 rounded-2xl font-semibold"
+            className="w-full bg-[#d6b98c] text-black py-5 rounded-2xl font-semibold"
           >
             Login
           </button>
@@ -220,101 +131,119 @@ export default function AdminPage() {
 
   return (
 
-    <main className="min-h-screen bg-black text-white px-6 py-16">
+    <main className="min-h-screen bg-[#050505] text-white px-6 py-12">
 
-      <div className="max-w-7xl mx-auto space-y-24">
+      <div className="max-w-7xl mx-auto">
 
-        <div>
+        {/* HEADER */}
 
-          <h1 className="text-6xl text-[#f5e6c8] mb-4">
-            Elva's Café Dashboard
-          </h1>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-16">
 
-          <p className="text-gray-400">
-            Manage orders, reservations, and menu items.
-          </p>
+          <div>
+
+            <h1 className="text-6xl text-[#f5e6c8] mb-3">
+              Elva's Café
+            </h1>
+
+            <p className="text-gray-400 text-lg">
+              Live Café Management Dashboard
+            </p>
+
+          </div>
+
+          <button
+            onClick={fetchDashboard}
+            className="bg-[#d6b98c] text-black px-8 py-4 rounded-2xl font-semibold hover:scale-105 transition"
+          >
+            {refreshing
+              ? "Refreshing..."
+              : "Refresh Dashboard"}
+          </button>
 
         </div>
 
-        {/* ORDERS */}
+        {/* LIVE ORDERS */}
 
-        <section>
+        <section className="mb-24">
 
-          <h2 className="text-4xl mb-10">
-            Orders
-          </h2>
+          <div className="flex items-center justify-between mb-10">
 
-          <div className="space-y-6">
+            <h2 className="text-4xl">
+              Live Orders
+            </h2>
+
+            <div className="bg-[#111] border border-white/10 rounded-2xl px-6 py-3">
+
+              {orders.length} Orders
+
+            </div>
+
+          </div>
+
+          <div className="grid gap-8">
 
             {orders.map((order) => (
 
               <div
                 key={order.id}
-                className="bg-[#111] border border-white/10 rounded-3xl p-8"
+                className="bg-[#111] border border-white/10 rounded-[32px] p-8 shadow-2xl"
               >
 
-                <div className="flex flex-wrap gap-10 mb-6">
+                <div className="grid md:grid-cols-4 gap-6 mb-8">
 
                   <div>
-                    <p className="text-gray-400">
+
+                    <p className="text-gray-400 mb-2">
                       Customer
                     </p>
 
-                    <p className="text-xl">
+                    <p className="text-2xl">
                       {order.customer_name}
                     </p>
+
                   </div>
 
                   <div>
-                    <p className="text-gray-400">
+
+                    <p className="text-gray-400 mb-2">
                       Phone
                     </p>
 
-                    <p className="text-xl">
+                    <p className="text-2xl">
                       {order.phone || "N/A"}
                     </p>
+
                   </div>
 
                   <div>
-                    <p className="text-gray-400">
-                      Status
+
+                    <p className="text-gray-400 mb-2">
+                      Total
                     </p>
 
-                    <select
-                      value={
-                        order.status
-                      }
-                      onChange={(e) =>
-                        updateOrderStatus(
-                          order.id,
-                          e.target.value
-                        )
-                      }
-                      className="bg-black border border-white/10 rounded-xl px-4 py-2"
-                    >
-                      <option>
-                        Preparing
-                      </option>
+                    <p className="text-2xl text-[#d6b98c]">
+                      ${order.total}
+                    </p>
 
-                      <option>
-                        Ready
-                      </option>
+                  </div>
 
-                      <option>
-                        Completed
-                      </option>
+                  <div>
 
-                    </select>
+                    <p className="text-gray-400 mb-2">
+                      Order #
+                    </p>
+
+                    <p className="text-2xl">
+                      {order.id}
+                    </p>
 
                   </div>
 
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-5">
 
-                  {Array.isArray(
-                    order.items
-                  ) &&
+                  {Array.isArray(order.items) &&
                     order.items.map(
                       (
                         item: any,
@@ -323,7 +252,7 @@ export default function AdminPage() {
 
                         <div
                           key={index}
-                          className="bg-black/30 rounded-2xl p-5"
+                          className="bg-black/30 rounded-2xl p-6"
                         >
 
                           <div className="flex justify-between mb-3">
@@ -335,16 +264,14 @@ export default function AdminPage() {
                             <p>
                               Qty:
                               {" "}
-                              {
-                                item.quantity
-                              }
+                              {item.quantity}
                             </p>
 
                           </div>
 
                           {item.customizations && (
 
-                            <div className="text-sm text-gray-300 space-y-1">
+                            <div className="grid md:grid-cols-2 gap-3 text-sm text-gray-300">
 
                               <p>
                                 Size:
@@ -370,10 +297,10 @@ export default function AdminPage() {
                                 {item.customizations.extras?.join(", ") || "—"}
                               </p>
 
-                              <p>
+                              <p className="md:col-span-2">
                                 Notes:
                                 {" "}
-                                {item.customizations.notes || "—"}
+                                {item.customizations.notes || "None"}
                               </p>
 
                             </div>
@@ -399,250 +326,90 @@ export default function AdminPage() {
 
         <section>
 
-          <h2 className="text-4xl mb-10">
-            Reservations
-          </h2>
+          <div className="flex items-center justify-between mb-10">
 
-          <div className="space-y-6">
+            <h2 className="text-4xl">
+              Reservations
+            </h2>
+
+            <div className="bg-[#111] border border-white/10 rounded-2xl px-6 py-3">
+
+              {reservations.length} Reservations
+
+            </div>
+
+          </div>
+
+          <div className="grid gap-8">
 
             {reservations.map((reservation) => (
 
               <div
                 key={reservation.id}
-                className="bg-[#111] border border-white/10 rounded-3xl p-8"
+                className="bg-[#111] border border-white/10 rounded-[32px] p-8"
               >
 
-                <div className="grid md:grid-cols-6 gap-6 items-center">
+                <div className="grid md:grid-cols-5 gap-6">
 
                   <div>
-                    <p className="text-gray-400">
+
+                    <p className="text-gray-400 mb-2">
                       Name
                     </p>
 
-                    <p>
+                    <p className="text-xl">
                       {reservation.name}
                     </p>
+
                   </div>
 
                   <div>
-                    <p className="text-gray-400">
+
+                    <p className="text-gray-400 mb-2">
                       Phone
                     </p>
 
-                    <p>
+                    <p className="text-xl">
                       {reservation.phone}
                     </p>
+
                   </div>
 
                   <div>
-                    <p className="text-gray-400">
+
+                    <p className="text-gray-400 mb-2">
                       Guests
                     </p>
 
-                    <p>
+                    <p className="text-xl">
                       {reservation.guests}
                     </p>
+
                   </div>
 
                   <div>
-                    <p className="text-gray-400">
+
+                    <p className="text-gray-400 mb-2">
                       Date
                     </p>
 
-                    <p>
+                    <p className="text-xl">
                       {reservation.date}
                     </p>
+
                   </div>
 
                   <div>
-                    <p className="text-gray-400">
+
+                    <p className="text-gray-400 mb-2">
                       Time
                     </p>
 
-                    <p>
+                    <p className="text-xl">
                       {reservation.time}
                     </p>
-                  </div>
-
-                  <div>
-
-                    <select
-                      value={
-                        reservation.status
-                      }
-                      onChange={(e) =>
-                        updateReservationStatus(
-                          reservation.id,
-                          e.target.value
-                        )
-                      }
-                      className="bg-black border border-white/10 rounded-xl px-4 py-2"
-                    >
-                      <option>
-                        Pending
-                      </option>
-
-                      <option>
-                        Approved
-                      </option>
-
-                      <option>
-                        Declined
-                      </option>
-
-                    </select>
 
                   </div>
-
-                </div>
-
-              </div>
-
-            ))}
-
-          </div>
-
-        </section>
-
-        {/* MENU */}
-
-        <section>
-
-          <h2 className="text-4xl mb-10">
-            Menu Management
-          </h2>
-
-          <div className="bg-[#111] border border-white/10 rounded-3xl p-8 mb-10">
-
-            <h3 className="text-2xl mb-6">
-              Add Menu Item
-            </h3>
-
-            <div className="grid md:grid-cols-2 gap-4 mb-4">
-
-              <input
-                placeholder="Item Name"
-                value={newItem.name}
-                onChange={(e) =>
-                  setNewItem({
-                    ...newItem,
-                    name: e.target.value,
-                  })
-                }
-                className="bg-black/30 border border-white/10 rounded-2xl p-4 outline-none"
-              />
-
-              <input
-                placeholder="Price"
-                value={newItem.price}
-                onChange={(e) =>
-                  setNewItem({
-                    ...newItem,
-                    price:
-                      e.target.value,
-                  })
-                }
-                className="bg-black/30 border border-white/10 rounded-2xl p-4 outline-none"
-              />
-
-              <input
-                placeholder="Category"
-                value={
-                  newItem.category
-                }
-                onChange={(e) =>
-                  setNewItem({
-                    ...newItem,
-                    category:
-                      e.target.value,
-                  })
-                }
-                className="bg-black/30 border border-white/10 rounded-2xl p-4 outline-none"
-              />
-
-              <input
-                placeholder="Description"
-                value={
-                  newItem.description
-                }
-                onChange={(e) =>
-                  setNewItem({
-                    ...newItem,
-                    description:
-                      e.target.value,
-                  })
-                }
-                className="bg-black/30 border border-white/10 rounded-2xl p-4 outline-none"
-              />
-
-            </div>
-
-            <button
-              onClick={addMenuItem}
-              className="bg-[#d6b98c] text-black px-8 py-4 rounded-2xl font-semibold"
-            >
-              Add Item
-            </button>
-
-          </div>
-
-          <div className="space-y-4">
-
-            {menuItems.map((item) => (
-
-              <div
-                key={item.id}
-                className="bg-[#111] border border-white/10 rounded-3xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6"
-              >
-
-                <div>
-
-                  <p className="text-2xl">
-                    {item.name}
-                  </p>
-
-                  <p className="text-[#d6b98c]">
-                    ${item.price}
-                  </p>
-
-                  <p className="text-gray-400">
-                    {item.category}
-                  </p>
-
-                  <p className="text-gray-500 text-sm">
-                    {item.description}
-                  </p>
-
-                </div>
-
-                <div className="flex gap-4">
-
-                  <button
-                    onClick={() =>
-                      toggleAvailability(
-                        item.id,
-                        item.available
-                      )
-                    }
-                    className={`px-5 py-3 rounded-2xl ${
-                      item.available
-                        ? "bg-green-500"
-                        : "bg-yellow-500"
-                    }`}
-                  >
-                    {item.available
-                      ? "Available"
-                      : "Unavailable"}
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      deleteItem(item.id)
-                    }
-                    className="bg-red-500 px-5 py-3 rounded-2xl"
-                  >
-                    Delete
-                  </button>
 
                 </div>
 
