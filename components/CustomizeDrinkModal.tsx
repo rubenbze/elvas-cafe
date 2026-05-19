@@ -111,30 +111,24 @@ export default function CustomizeDrinkModal({
       {open && (
 
         <div
-          onClick={() =>
-            setOpen(false)
-          }
-          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center px-4"
+          className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
         >
 
           <div
-            onClick={(e) =>
-              e.stopPropagation()
-            }
-            className="bg-[#111] border border-white/10 rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            className="relative bg-[#111] border border-white/10 rounded-3xl w-full max-w-2xl h-[82vh] overflow-hidden flex flex-col"
           >
 
             {/* HEADER */}
 
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 bg-[#111] sticky top-0 z-50">
 
               <div>
 
-                <h2 className="text-4xl text-[#f5e6c8]">
+                <h2 className="text-3xl text-[#f5e6c8]">
                   {item.name}
                 </h2>
 
-                <p className="text-[#d6b98c] mt-2 text-xl">
+                <p className="text-[#d6b98c] mt-1">
                   ${item.price}
                 </p>
 
@@ -144,18 +138,18 @@ export default function CustomizeDrinkModal({
                 onClick={() =>
                   setOpen(false)
                 }
-                className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 transition text-2xl flex items-center justify-center"
+                className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-2xl flex items-center justify-center transition flex-shrink-0"
               >
                 ×
               </button>
 
             </div>
 
-            {/* COFFEE */}
+            {/* CONTENT */}
 
-            {(isCoffee || isMatcha) && (
+            <div className="flex-1 overflow-y-auto px-6 py-6">
 
-              <>
+              {(isCoffee || isMatcha) && (
 
                 <div className="mb-8">
 
@@ -191,251 +185,219 @@ export default function CustomizeDrinkModal({
 
                 </div>
 
-              </>
+              )}
 
-            )}
+              {(isCoffee || isMatcha) && (
 
-            {/* TEMPERATURE */}
+                <div className="mb-8">
 
-            {(isCoffee || isMatcha) && (
+                  <p className="mb-4 text-[#d6b98c]">
+                    Temperature
+                  </p>
 
-              <div className="mb-8">
+                  <div className="flex gap-3">
 
-                <p className="mb-4 text-[#d6b98c]">
-                  Temperature
-                </p>
+                    {[
+                      "Hot",
+                      "Iced",
+                    ].map((option) => (
 
-                <div className="flex gap-3">
+                      <button
+                        key={option}
+                        onClick={() =>
+                          setTemperature(
+                            option
+                          )
+                        }
+                        className={`px-5 py-3 rounded-2xl border transition ${
+                          temperature === option
+                            ? "bg-[#d6b98c] text-black border-[#d6b98c]"
+                            : "border-white/10"
+                        }`}
+                      >
+                        {option}
+                      </button>
 
-                  {[
-                    "Hot",
-                    "Iced",
-                  ].map((option) => (
+                    ))}
 
-                    <button
-                      key={option}
-                      onClick={() =>
-                        setTemperature(
-                          option
-                        )
-                      }
-                      className={`px-5 py-3 rounded-2xl border transition ${
-                        temperature === option
-                          ? "bg-[#d6b98c] text-black border-[#d6b98c]"
-                          : "border-white/10"
-                      }`}
-                    >
-                      {option}
-                    </button>
-
-                  ))}
+                  </div>
 
                 </div>
 
-              </div>
+              )}
 
-            )}
+              {(isCoffee || isMatcha) && (
 
-            {/* MILK */}
+                <div className="mb-8">
 
-            {(isCoffee || isMatcha) && (
+                  <p className="mb-4 text-[#d6b98c]">
+                    Milk
+                  </p>
 
-              <div className="mb-8">
+                  <div className="flex gap-3 flex-wrap">
 
-                <p className="mb-4 text-[#d6b98c]">
-                  Milk
-                </p>
+                    {[
+                      "Whole Milk",
+                      "Oat Milk",
+                      "Almond Milk",
+                      "Soy Milk",
+                    ].map((option) => (
 
-                <div className="flex gap-3 flex-wrap">
+                      <button
+                        key={option}
+                        onClick={() =>
+                          setMilk(option)
+                        }
+                        className={`px-5 py-3 rounded-2xl border transition ${
+                          milk === option
+                            ? "bg-[#d6b98c] text-black border-[#d6b98c]"
+                            : "border-white/10"
+                        }`}
+                      >
+                        {option}
+                      </button>
 
-                  {[
-                    "Whole Milk",
-                    "Oat Milk",
-                    "Almond Milk",
-                    "Soy Milk",
-                  ].map((option) => (
+                    ))}
 
-                    <button
-                      key={option}
-                      onClick={() =>
-                        setMilk(option)
-                      }
-                      className={`px-5 py-3 rounded-2xl border transition ${
-                        milk === option
-                          ? "bg-[#d6b98c] text-black border-[#d6b98c]"
-                          : "border-white/10"
-                      }`}
-                    >
-                      {option}
-                    </button>
-
-                  ))}
+                  </div>
 
                 </div>
 
-              </div>
+              )}
 
-            )}
+              {isCoffee && (
 
-            {/* COFFEE EXTRAS */}
+                <div className="mb-8">
 
-            {isCoffee && (
+                  <p className="mb-4 text-[#d6b98c]">
+                    Extras
+                  </p>
 
-              <div className="mb-8">
+                  <div className="flex flex-wrap gap-3">
 
-                <p className="mb-4 text-[#d6b98c]">
-                  Extras
-                </p>
+                    {[
+                      "Extra Espresso Shot",
+                      "Caramel Syrup",
+                      "Vanilla Syrup",
+                      "Hazelnut Syrup",
+                      "Whipped Cream",
+                      "Caramel Drizzle",
+                    ].map((option) => (
 
-                <div className="flex flex-wrap gap-3">
+                      <button
+                        key={option}
+                        onClick={() =>
+                          toggleExtra(option)
+                        }
+                        className={`px-5 py-3 rounded-2xl border transition ${
+                          extras.includes(option)
+                            ? "bg-[#d6b98c] text-black border-[#d6b98c]"
+                            : "border-white/10"
+                        }`}
+                      >
+                        {option}
+                      </button>
 
-                  {[
-                    "Extra Espresso Shot",
-                    "Caramel Syrup",
-                    "Vanilla Syrup",
-                    "Hazelnut Syrup",
-                    "Whipped Cream",
-                    "Caramel Drizzle",
-                  ].map((option) => (
+                    ))}
 
-                    <button
-                      key={option}
-                      onClick={() =>
-                        toggleExtra(
-                          option
-                        )
-                      }
-                      className={`px-5 py-3 rounded-2xl border transition ${
-                        extras.includes(
-                          option
-                        )
-                          ? "bg-[#d6b98c] text-black border-[#d6b98c]"
-                          : "border-white/10"
-                      }`}
-                    >
-                      {option}
-                    </button>
-
-                  ))}
+                  </div>
 
                 </div>
 
-              </div>
+              )}
 
-            )}
+              {isMatcha && (
 
-            {/* MATCHA EXTRAS */}
+                <div className="mb-8">
 
-            {isMatcha && (
+                  <p className="mb-4 text-[#d6b98c]">
+                    Extras
+                  </p>
 
-              <div className="mb-8">
+                  <div className="flex flex-wrap gap-3">
 
-                <p className="mb-4 text-[#d6b98c]">
-                  Extras
-                </p>
+                    {[
+                      "Cold Foam",
+                      "Vanilla Syrup",
+                      "Brown Sugar Syrup",
+                    ].map((option) => (
 
-                <div className="flex flex-wrap gap-3">
+                      <button
+                        key={option}
+                        onClick={() =>
+                          toggleExtra(option)
+                        }
+                        className={`px-5 py-3 rounded-2xl border transition ${
+                          extras.includes(option)
+                            ? "bg-[#d6b98c] text-black border-[#d6b98c]"
+                            : "border-white/10"
+                        }`}
+                      >
+                        {option}
+                      </button>
 
-                  {[
-                    "Cold Foam",
-                    "Vanilla Syrup",
-                    "Brown Sugar Syrup",
-                  ].map((option) => (
+                    ))}
 
-                    <button
-                      key={option}
-                      onClick={() =>
-                        toggleExtra(
-                          option
-                        )
-                      }
-                      className={`px-5 py-3 rounded-2xl border transition ${
-                        extras.includes(
-                          option
-                        )
-                          ? "bg-[#d6b98c] text-black border-[#d6b98c]"
-                          : "border-white/10"
-                      }`}
-                    >
-                      {option}
-                    </button>
-
-                  ))}
+                  </div>
 
                 </div>
 
-              </div>
+              )}
 
-            )}
+              {isRefresher && (
 
-            {/* REFRESHERS */}
+                <div className="mb-8">
 
-            {isRefresher && (
+                  <p className="mb-4 text-[#d6b98c]">
+                    Customize
+                  </p>
 
-              <div className="mb-8">
+                  <div className="flex flex-wrap gap-3">
 
-                <p className="mb-4 text-[#d6b98c]">
-                  Customize
-                </p>
+                    {[
+                      "Add Lemonade",
+                      "Coconut Milk",
+                      "Extra Fruit Inclusions",
+                      "Light Ice",
+                      "No Ice",
+                    ].map((option) => (
 
-                <div className="flex flex-wrap gap-3">
+                      <button
+                        key={option}
+                        onClick={() =>
+                          toggleExtra(option)
+                        }
+                        className={`px-5 py-3 rounded-2xl border transition ${
+                          extras.includes(option)
+                            ? "bg-[#d6b98c] text-black border-[#d6b98c]"
+                            : "border-white/10"
+                        }`}
+                      >
+                        {option}
+                      </button>
 
-                  {[
-                    "Add Lemonade",
-                    "Coconut Milk",
-                    "Extra Fruit Inclusions",
-                    "Light Ice",
-                    "No Ice",
-                  ].map((option) => (
+                    ))}
 
-                    <button
-                      key={option}
-                      onClick={() =>
-                        toggleExtra(
-                          option
-                        )
-                      }
-                      className={`px-5 py-3 rounded-2xl border transition ${
-                        extras.includes(
-                          option
-                        )
-                          ? "bg-[#d6b98c] text-black border-[#d6b98c]"
-                          : "border-white/10"
-                      }`}
-                    >
-                      {option}
-                    </button>
-
-                  ))}
+                  </div>
 
                 </div>
 
-              </div>
+              )}
 
-            )}
+              {isPastry && (
 
-            {/* PASTRIES */}
+                <div className="mb-8">
 
-            {isPastry && (
-
-              <div className="mb-8">
-
-                <p className="mb-4 text-[#d6b98c]">
-                  Pastry Options
-                </p>
-
-                <div className="flex gap-3">
+                  <p className="mb-4 text-[#d6b98c]">
+                    Pastry Options
+                  </p>
 
                   <button
                     onClick={() =>
-                      toggleExtra(
-                        "Warm It Up"
-                      )
+                      toggleExtra("Warm It Up")
                     }
                     className={`px-5 py-3 rounded-2xl border transition ${
-                      extras.includes(
-                        "Warm It Up"
-                      )
+                      extras.includes("Warm It Up")
                         ? "bg-[#d6b98c] text-black border-[#d6b98c]"
                         : "border-white/10"
                     }`}
@@ -445,129 +407,109 @@ export default function CustomizeDrinkModal({
 
                 </div>
 
-              </div>
+              )}
 
-            )}
+              {isDessert && (
 
-            {/* DESSERTS */}
+                <div className="mb-8">
 
-            {isDessert && (
+                  <p className="mb-4 text-[#d6b98c]">
+                    Dessert Add Ons
+                  </p>
 
-              <div className="mb-8">
+                  <div className="flex flex-wrap gap-3">
 
-                <p className="mb-4 text-[#d6b98c]">
-                  Dessert Add Ons
-                </p>
+                    {[
+                      "Add Ice Cream",
+                      "Extra Drizzle",
+                    ].map((option) => (
 
-                <div className="flex gap-3 flex-wrap">
+                      <button
+                        key={option}
+                        onClick={() =>
+                          toggleExtra(option)
+                        }
+                        className={`px-5 py-3 rounded-2xl border transition ${
+                          extras.includes(option)
+                            ? "bg-[#d6b98c] text-black border-[#d6b98c]"
+                            : "border-white/10"
+                        }`}
+                      >
+                        {option}
+                      </button>
 
-                  {[
-                    "Add Ice Cream",
-                    "Extra Drizzle",
-                  ].map((option) => (
+                    ))}
 
-                    <button
-                      key={option}
-                      onClick={() =>
-                        toggleExtra(
-                          option
-                        )
-                      }
-                      className={`px-5 py-3 rounded-2xl border transition ${
-                        extras.includes(
-                          option
-                        )
-                          ? "bg-[#d6b98c] text-black border-[#d6b98c]"
-                          : "border-white/10"
-                      }`}
-                    >
-                      {option}
-                    </button>
-
-                  ))}
+                  </div>
 
                 </div>
 
-              </div>
+              )}
 
-            )}
+              {isEntree && (
 
-            {/* ENTREES */}
+                <div className="mb-8">
 
-            {isEntree && (
+                  <p className="mb-4 text-[#d6b98c]">
+                    Entree Options
+                  </p>
 
-              <div className="mb-8">
+                  <div className="flex flex-wrap gap-3">
 
-                <p className="mb-4 text-[#d6b98c]">
-                  Entree Options
-                </p>
+                    {[
+                      "Remove Ingredients",
+                      "Extra Cheese",
+                      "Add Protein",
+                      "Warm It Up",
+                    ].map((option) => (
 
-                <div className="flex flex-wrap gap-3">
+                      <button
+                        key={option}
+                        onClick={() =>
+                          toggleExtra(option)
+                        }
+                        className={`px-5 py-3 rounded-2xl border transition ${
+                          extras.includes(option)
+                            ? "bg-[#d6b98c] text-black border-[#d6b98c]"
+                            : "border-white/10"
+                        }`}
+                      >
+                        {option}
+                      </button>
 
-                  {[
-                    "Remove Ingredients",
-                    "Extra Cheese",
-                    "Add Protein",
-                    "Warm It Up",
-                  ].map((option) => (
+                    ))}
 
-                    <button
-                      key={option}
-                      onClick={() =>
-                        toggleExtra(
-                          option
-                        )
-                      }
-                      className={`px-5 py-3 rounded-2xl border transition ${
-                        extras.includes(
-                          option
-                        )
-                          ? "bg-[#d6b98c] text-black border-[#d6b98c]"
-                          : "border-white/10"
-                      }`}
-                    >
-                      {option}
-                    </button>
-
-                  ))}
+                  </div>
 
                 </div>
 
+              )}
+
+              <div className="mt-10">
+
+                <p className="mb-3 text-[#d6b98c]">
+                  Notes
+                </p>
+
+                <textarea
+                  value={notes}
+                  onChange={(e) =>
+                    setNotes(e.target.value)
+                  }
+                  placeholder="Special instructions..."
+                  className="w-full h-28 bg-black/30 border border-white/10 rounded-2xl p-4 outline-none resize-none"
+                />
+
               </div>
 
-            )}
-
-            {/* NOTES */}
-
-            <div className="mt-10">
-
-              <p className="mb-3 text-[#d6b98c]">
-                Notes
-              </p>
-
-              <textarea
-                value={notes}
-                onChange={(e) =>
-                  setNotes(
-                    e.target.value
-                  )
-                }
-                placeholder="Special instructions..."
-                className="w-full h-28 bg-black/30 border border-white/10 rounded-2xl p-4 outline-none resize-none"
-              />
+              <button
+                onClick={handleAddToCart}
+                className="w-full mt-10 bg-[#d6b98c] text-black py-4 rounded-2xl text-xl font-semibold hover:scale-[1.02] transition"
+              >
+                Add To Order
+              </button>
 
             </div>
-
-            {/* BUTTON */}
-
-            <button
-              onClick={
-                handleAddToCart
-              }
-              className="w-full mt-10 bg-[#d6b98c] text-black py-4 rounded-2xl text-xl font-semibold hover:scale-[1.02] transition"
-            >
-              Add To Order
-            </button>
 
           </div>
 
