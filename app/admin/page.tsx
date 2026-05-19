@@ -33,6 +33,12 @@ export default function AdminPage() {
   const [menuItems, setMenuItems] =
     useState<any[]>([]);
 
+  const [newName, setNewName] =
+    useState("");
+
+  const [newPrice, setNewPrice] =
+    useState("");
+
   async function fetchOrders() {
 
     const { data } = await supabase
@@ -81,6 +87,37 @@ export default function AdminPage() {
 
   }
 
+  async function addMenuItem() {
+
+    if (!newName || !newPrice) return;
+
+    await supabase
+      .from("menu_items")
+      .insert([
+        {
+          name: newName,
+          price: Number(newPrice),
+        },
+      ]);
+
+    setNewName("");
+    setNewPrice("");
+
+    fetchMenu();
+
+  }
+
+  async function deleteMenuItem(id: number) {
+
+    await supabase
+      .from("menu_items")
+      .delete()
+      .eq("id", id);
+
+    fetchMenu();
+
+  }
+
   useEffect(() => {
 
     if (authenticated) {
@@ -107,17 +144,6 @@ export default function AdminPage() {
 
   }
 
-  async function deleteMenuItem(id: number) {
-
-    await supabase
-      .from("menu_items")
-      .delete()
-      .eq("id", id);
-
-    fetchMenu();
-
-  }
-
   if (!authenticated) {
 
     return (
@@ -126,8 +152,8 @@ export default function AdminPage() {
 
         <div className="bg-[#111] border border-white/10 rounded-3xl p-10 w-full max-w-md">
 
-          <h1 className="text-4xl mb-8 text-center text-[#f5e6c8]">
-            Admin Login
+          <h1 className="text-5xl text-[#f5e6c8] text-center mb-8">
+            Elva's Admin
           </h1>
 
           <input
@@ -159,55 +185,169 @@ export default function AdminPage() {
 
     <main className="min-h-screen bg-black text-white px-6 py-16">
 
-      <div className="max-w-7xl mx-auto space-y-20">
+      <div className="max-w-7xl mx-auto space-y-24">
 
-        <h1 className="text-6xl text-[#f5e6c8]">
-          Elva's Admin Dashboard
-        </h1>
+        <div>
+
+          <h1 className="text-6xl text-[#f5e6c8] mb-4">
+            Elva's Café Dashboard
+          </h1>
+
+          <p className="text-gray-400">
+            Manage orders, reservations, and menu items.
+          </p>
+
+        </div>
 
         {/* ORDERS */}
 
         <section>
 
-          <h2 className="text-4xl mb-8">
+          <h2 className="text-4xl mb-10">
             Orders
           </h2>
 
-          <div className="space-y-6">
+          <div className="space-y-8">
 
             {orders.map((order) => (
 
               <div
                 key={order.id}
-                className="bg-[#111] border border-white/10 rounded-3xl p-6"
+                className="bg-[#111] border border-white/10 rounded-3xl p-8"
               >
 
-                <p>
-                  <strong>Name:</strong>{" "}
-                  {order.customer_name}
-                </p>
+                <div className="flex flex-wrap gap-8 mb-6">
 
-                <p>
-                  <strong>Phone:</strong>{" "}
-                  {order.phone}
-                </p>
+                  <div>
+                    <p className="text-gray-400">
+                      Customer
+                    </p>
 
-                <p>
-                  <strong>Total:</strong>{" "}
-                  ${order.total}
-                </p>
+                    <p className="text-xl">
+                      {order.customer_name}
+                    </p>
+                  </div>
 
-                <div className="mt-4">
+                  <div>
+                    <p className="text-gray-400">
+                      Phone
+                    </p>
 
-                  <strong>Items:</strong>
+                    <p className="text-xl">
+                      {order.phone}
+                    </p>
+                  </div>
 
-                  <pre className="mt-2 text-sm text-gray-300 whitespace-pre-wrap">
-                    {JSON.stringify(
-                      order.items,
-                      null,
-                      2
+                  <div>
+                    <p className="text-gray-400">
+                      Total
+                    </p>
+
+                    <p className="text-xl text-[#d6b98c]">
+                      ${order.total}
+                    </p>
+                  </div>
+
+                </div>
+
+                <div>
+
+                  <p className="text-2xl mb-4">
+                    Items Ordered
+                  </p>
+
+                  <div className="space-y-4">
+
+                    {order.items?.map(
+                      (
+                        item: any,
+                        index: number
+                      ) => (
+
+                        <div
+                          key={index}
+                          className="bg-black/30 rounded-2xl p-5"
+                        >
+
+                          <div className="flex justify-between">
+
+                            <h3 className="text-xl">
+                              {item.name}
+                            </h3>
+
+                            <p className="text-[#d6b98c]">
+                              ${item.price}
+                            </p>
+
+                          </div>
+
+                          {item.customizations && (
+
+                            <div className="mt-4 text-sm text-gray-300 space-y-1">
+
+                              {item.customizations.size && (
+                                <p>
+                                  Size:{" "}
+                                  {
+                                    item
+                                      .customizations
+                                      .size
+                                  }
+                                </p>
+                              )}
+
+                              {item.customizations.temperature && (
+                                <p>
+                                  Temperature:{" "}
+                                  {
+                                    item
+                                      .customizations
+                                      .temperature
+                                  }
+                                </p>
+                              )}
+
+                              {item.customizations.milk && (
+                                <p>
+                                  Milk:{" "}
+                                  {
+                                    item
+                                      .customizations
+                                      .milk
+                                  }
+                                </p>
+                              )}
+
+                              {item.customizations.extras?.length > 0 && (
+                                <p>
+                                  Extras:{" "}
+                                  {item.customizations.extras.join(
+                                    ", "
+                                  )}
+                                </p>
+                              )}
+
+                              {item.customizations.notes && (
+                                <p>
+                                  Notes:{" "}
+                                  {
+                                    item
+                                      .customizations
+                                      .notes
+                                  }
+                                </p>
+                              )}
+
+                            </div>
+
+                          )}
+
+                        </div>
+
+                      )
                     )}
-                  </pre>
+
+                  </div>
 
                 </div>
 
@@ -223,7 +363,7 @@ export default function AdminPage() {
 
         <section>
 
-          <h2 className="text-4xl mb-8">
+          <h2 className="text-4xl mb-10">
             Reservations
           </h2>
 
@@ -236,25 +376,49 @@ export default function AdminPage() {
                 className="bg-[#111] border border-white/10 rounded-3xl p-6"
               >
 
-                <p>
-                  <strong>Name:</strong>{" "}
-                  {reservation.name}
-                </p>
+                <div className="grid md:grid-cols-4 gap-6">
 
-                <p>
-                  <strong>Guests:</strong>{" "}
-                  {reservation.guests}
-                </p>
+                  <div>
+                    <p className="text-gray-400">
+                      Name
+                    </p>
 
-                <p>
-                  <strong>Date:</strong>{" "}
-                  {reservation.date}
-                </p>
+                    <p className="text-xl">
+                      {reservation.name}
+                    </p>
+                  </div>
 
-                <p>
-                  <strong>Time:</strong>{" "}
-                  {reservation.time}
-                </p>
+                  <div>
+                    <p className="text-gray-400">
+                      Guests
+                    </p>
+
+                    <p className="text-xl">
+                      {reservation.guests}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-gray-400">
+                      Date
+                    </p>
+
+                    <p className="text-xl">
+                      {reservation.date}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-gray-400">
+                      Time
+                    </p>
+
+                    <p className="text-xl">
+                      {reservation.time}
+                    </p>
+                  </div>
+
+                </div>
 
               </div>
 
@@ -268,9 +432,50 @@ export default function AdminPage() {
 
         <section>
 
-          <h2 className="text-4xl mb-8">
-            Menu Items
+          <h2 className="text-4xl mb-10">
+            Menu Management
           </h2>
+
+          {/* ADD ITEM */}
+
+          <div className="bg-[#111] border border-white/10 rounded-3xl p-8 mb-10">
+
+            <h3 className="text-2xl mb-6">
+              Add Menu Item
+            </h3>
+
+            <div className="grid md:grid-cols-3 gap-4">
+
+              <input
+                placeholder="Item Name"
+                value={newName}
+                onChange={(e) =>
+                  setNewName(e.target.value)
+                }
+                className="bg-black/40 border border-white/10 rounded-2xl p-4 outline-none"
+              />
+
+              <input
+                placeholder="Price"
+                value={newPrice}
+                onChange={(e) =>
+                  setNewPrice(e.target.value)
+                }
+                className="bg-black/40 border border-white/10 rounded-2xl p-4 outline-none"
+              />
+
+              <button
+                onClick={addMenuItem}
+                className="bg-[#d6b98c] text-black rounded-2xl font-semibold"
+              >
+                Add Item
+              </button>
+
+            </div>
+
+          </div>
+
+          {/* EXISTING ITEMS */}
 
           <div className="space-y-4">
 
