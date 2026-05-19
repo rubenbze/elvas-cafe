@@ -4,53 +4,60 @@ import { useState } from "react";
 
 import { useCartStore } from "@/store/cartStore";
 
-interface Props {
-  item: {
-    id: number;
-    name: string;
-    price: number;
-  };
-
-  type: string;
-}
+type Props = {
+  item: any;
+  category: string;
+};
 
 export default function CustomizeDrinkModal({
   item,
-  type,
+  category,
 }: Props) {
 
-  const addToCart = useCartStore(
-    (state) => state.addToCart
-  );
+  const addToCart =
+    useCartStore(
+      (state) => state.addToCart
+    );
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] =
+    useState(false);
 
-  const [size, setSize] = useState("16oz");
-  const [temperature, setTemperature] = useState("Iced");
-  const [milk, setMilk] = useState("Whole Milk");
+  const [size, setSize] =
+    useState("16oz");
 
-  const [extras, setExtras] = useState<string[]>([]);
+  const [temperature, setTemperature] =
+    useState("Iced");
 
-  const syrupOptions = [
-    "Vanilla",
-    "Caramel",
-    "Hazelnut",
-    "Brown Sugar",
-  ];
+  const [milk, setMilk] =
+    useState("Whole Milk");
+
+  const [extras, setExtras] =
+    useState<string[]>([]);
+
+  const [notes, setNotes] =
+    useState("");
 
   function toggleExtra(extra: string) {
 
-    if (extras.includes(extra)) {
+    if (
+      extras.includes(extra)
+    ) {
 
       setExtras(
-        extras.filter((e) => e !== extra)
+        extras.filter(
+          (e) => e !== extra
+        )
       );
 
     } else {
 
-      setExtras([...extras, extra]);
+      setExtras([
+        ...extras,
+        extra,
+      ]);
 
     }
+
   }
 
   function handleAddToCart() {
@@ -65,239 +72,488 @@ export default function CustomizeDrinkModal({
         temperature,
         milk,
         extras,
+        notes,
       },
     });
 
     setOpen(false);
+
+  }
+
+  function renderOptions() {
+
+    // COFFEE + MATCHA
+
+    if (
+      category === "Coffee" ||
+      category === "Matcha"
+    ) {
+
+      return (
+
+        <>
+
+          {/* SIZE */}
+
+          <div>
+
+            <p className="mb-3 text-[#d6b98c]">
+              Size
+            </p>
+
+            <div className="flex gap-3 flex-wrap">
+
+              {[
+                "8oz",
+                "12oz",
+                "16oz",
+              ].map((option) => (
+
+                <button
+                  key={option}
+                  onClick={() =>
+                    setSize(option)
+                  }
+                  className={`px-5 py-2 rounded-full border ${
+                    size === option
+                      ? "bg-[#d6b98c] text-black"
+                      : "border-white/20"
+                  }`}
+                >
+                  {option}
+                </button>
+
+              ))}
+
+            </div>
+
+          </div>
+
+          {/* TEMP */}
+
+          <div className="mt-8">
+
+            <p className="mb-3 text-[#d6b98c]">
+              Temperature
+            </p>
+
+            <div className="flex gap-3">
+
+              {[
+                "Hot",
+                "Iced",
+              ].map((option) => (
+
+                <button
+                  key={option}
+                  onClick={() =>
+                    setTemperature(
+                      option
+                    )
+                  }
+                  className={`px-5 py-2 rounded-full border ${
+                    temperature === option
+                      ? "bg-[#d6b98c] text-black"
+                      : "border-white/20"
+                  }`}
+                >
+                  {option}
+                </button>
+
+              ))}
+
+            </div>
+
+          </div>
+
+          {/* MILK */}
+
+          <div className="mt-8">
+
+            <p className="mb-3 text-[#d6b98c]">
+              Milk
+            </p>
+
+            <div className="flex flex-wrap gap-3">
+
+              {[
+                "Whole Milk",
+                "Oat Milk",
+                "Almond Milk",
+                "Soy Milk",
+              ].map((option) => (
+
+                <button
+                  key={option}
+                  onClick={() =>
+                    setMilk(option)
+                  }
+                  className={`px-5 py-2 rounded-full border ${
+                    milk === option
+                      ? "bg-[#d6b98c] text-black"
+                      : "border-white/20"
+                  }`}
+                >
+                  {option}
+                </button>
+
+              ))}
+
+            </div>
+
+          </div>
+
+          {/* EXTRAS */}
+
+          <div className="mt-8">
+
+            <p className="mb-3 text-[#d6b98c]">
+              Extras
+            </p>
+
+            <div className="flex flex-wrap gap-3">
+
+              {[
+                "Vanilla Syrup",
+                "Caramel Syrup",
+                "Hazelnut Syrup",
+                "Extra Espresso Shot",
+                "Cold Foam",
+                "Whipped Cream",
+              ].map((extra) => (
+
+                <button
+                  key={extra}
+                  onClick={() =>
+                    toggleExtra(extra)
+                  }
+                  className={`px-5 py-2 rounded-full border ${
+                    extras.includes(
+                      extra
+                    )
+                      ? "bg-[#d6b98c] text-black"
+                      : "border-white/20"
+                  }`}
+                >
+                  {extra}
+                </button>
+
+              ))}
+
+            </div>
+
+          </div>
+
+        </>
+
+      );
+
+    }
+
+    // REFRESHERS
+
+    if (
+      category ===
+      "Refreshers"
+    ) {
+
+      return (
+
+        <>
+
+          <div>
+
+            <p className="mb-3 text-[#d6b98c]">
+              Size
+            </p>
+
+            <div className="flex gap-3">
+
+              {[
+                "12oz",
+                "16oz",
+                "24oz",
+              ].map((option) => (
+
+                <button
+                  key={option}
+                  onClick={() =>
+                    setSize(option)
+                  }
+                  className={`px-5 py-2 rounded-full border ${
+                    size === option
+                      ? "bg-[#d6b98c] text-black"
+                      : "border-white/20"
+                  }`}
+                >
+                  {option}
+                </button>
+
+              ))}
+
+            </div>
+
+          </div>
+
+          <div className="mt-8">
+
+            <p className="mb-3 text-[#d6b98c]">
+              Extras
+            </p>
+
+            <div className="flex flex-wrap gap-3">
+
+              {[
+                "Light Ice",
+                "No Ice",
+                "Extra Fruit",
+                "Lemonade",
+                "Coconut Milk",
+              ].map((extra) => (
+
+                <button
+                  key={extra}
+                  onClick={() =>
+                    toggleExtra(extra)
+                  }
+                  className={`px-5 py-2 rounded-full border ${
+                    extras.includes(
+                      extra
+                    )
+                      ? "bg-[#d6b98c] text-black"
+                      : "border-white/20"
+                  }`}
+                >
+                  {extra}
+                </button>
+
+              ))}
+
+            </div>
+
+          </div>
+
+        </>
+
+      );
+
+    }
+
+    // PASTRIES
+
+    if (
+      category ===
+      "Pastries"
+    ) {
+
+      return (
+
+        <div>
+
+          <p className="mb-3 text-[#d6b98c]">
+            Options
+          </p>
+
+          <button
+            onClick={() =>
+              toggleExtra(
+                "Warm It Up"
+              )
+            }
+            className={`px-5 py-2 rounded-full border ${
+              extras.includes(
+                "Warm It Up"
+              )
+                ? "bg-[#d6b98c] text-black"
+                : "border-white/20"
+            }`}
+          >
+            Warm It Up
+          </button>
+
+        </div>
+
+      );
+
+    }
+
+    // ENTREES
+
+    if (
+      category ===
+      "Entrees"
+    ) {
+
+      return (
+
+        <div>
+
+          <p className="mb-3 text-[#d6b98c]">
+            Extras
+          </p>
+
+          <div className="flex flex-wrap gap-3">
+
+            {[
+              "Extra Cheese",
+              "Extra Protein",
+              "Warm It Up",
+              "No Tomatoes",
+              "No Onions",
+            ].map((extra) => (
+
+              <button
+                key={extra}
+                onClick={() =>
+                  toggleExtra(extra)
+                }
+                className={`px-5 py-2 rounded-full border ${
+                  extras.includes(
+                    extra
+                  )
+                    ? "bg-[#d6b98c] text-black"
+                    : "border-white/20"
+                }`}
+              >
+                {extra}
+              </button>
+
+            ))}
+
+          </div>
+
+        </div>
+
+      );
+
+    }
+
+    // DESSERTS
+
+    return (
+
+      <div>
+
+        <p className="mb-3 text-[#d6b98c]">
+          Dessert Add-ons
+        </p>
+
+        <div className="flex flex-wrap gap-3">
+
+          {[
+            "Extra Chocolate",
+            "Add Ice Cream",
+            "Extra Caramel Drizzle",
+          ].map((extra) => (
+
+            <button
+              key={extra}
+              onClick={() =>
+                toggleExtra(extra)
+              }
+              className={`px-5 py-2 rounded-full border ${
+                extras.includes(
+                  extra
+                )
+                  ? "bg-[#d6b98c] text-black"
+                  : "border-white/20"
+              }`}
+            >
+              {extra}
+            </button>
+
+          ))}
+
+        </div>
+
+      </div>
+
+    );
+
   }
 
   return (
+
     <>
-      {/* PLUS BUTTON ONLY */}
 
       <button
-        onClick={() => setOpen(true)}
-        className="w-14 h-14 rounded-full border border-[#d6b98c] text-[#d6b98c] flex items-center justify-center text-3xl hover:bg-[#d6b98c] hover:text-black transition duration-300"
+        onClick={() =>
+          setOpen(true)
+        }
+        className="w-12 h-12 rounded-full bg-[#d6b98c] text-black text-3xl flex items-center justify-center hover:scale-105 transition"
       >
         +
       </button>
 
-      {/* MODAL */}
-
       {open && (
 
-        <div className="fixed inset-0 z-[999] bg-black/70 backdrop-blur-sm flex items-center justify-center p-6">
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center px-4">
 
-          <div className="w-full max-w-2xl bg-[#111] border border-white/10 rounded-[40px] p-8 max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#111] border border-white/10 rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
 
-            <h2 className="text-4xl mb-2 text-[#f5e6c8]">
-              {item.name}
-            </h2>
+            <div className="flex justify-between items-center mb-8">
 
-            <p className="text-[#d6b98c] text-xl mb-10">
-              ${item.price.toFixed(2)}
-            </p>
+              <div>
 
-            {/* DRINK OPTIONS */}
+                <h2 className="text-4xl text-[#f5e6c8]">
+                  {item.name}
+                </h2>
 
-            {type === "drink" && (
-
-              <div className="space-y-10">
-
-                {/* SIZE */}
-
-                <div>
-
-                  <h3 className="text-xl mb-4">
-                    Select Size
-                  </h3>
-
-                  <div className="flex gap-4 flex-wrap">
-
-                    {["8oz", "16oz", "24oz"].map((option) => (
-
-                      <button
-                        key={option}
-                        onClick={() => setSize(option)}
-                        className={`px-6 py-3 rounded-full border transition ${
-                          size === option
-                            ? "bg-[#d6b98c] text-black border-[#d6b98c]"
-                            : "border-white/10"
-                        }`}
-                      >
-                        {option}
-                      </button>
-
-                    ))}
-
-                  </div>
-
-                </div>
-
-                {/* TEMP */}
-
-                <div>
-
-                  <h3 className="text-xl mb-4">
-                    Temperature
-                  </h3>
-
-                  <div className="flex gap-4">
-
-                    {["Hot", "Iced"].map((option) => (
-
-                      <button
-                        key={option}
-                        onClick={() => setTemperature(option)}
-                        className={`px-6 py-3 rounded-full border transition ${
-                          temperature === option
-                            ? "bg-[#d6b98c] text-black border-[#d6b98c]"
-                            : "border-white/10"
-                        }`}
-                      >
-                        {option}
-                      </button>
-
-                    ))}
-
-                  </div>
-
-                </div>
-
-                {/* MILK */}
-
-                <div>
-
-                  <h3 className="text-xl mb-4">
-                    Milk Option
-                  </h3>
-
-                  <div className="flex gap-4 flex-wrap">
-
-                    {[
-                      "Whole Milk",
-                      "Oat Milk",
-                      "Almond Milk",
-                    ].map((option) => (
-
-                      <button
-                        key={option}
-                        onClick={() => setMilk(option)}
-                        className={`px-6 py-3 rounded-full border transition ${
-                          milk === option
-                            ? "bg-[#d6b98c] text-black border-[#d6b98c]"
-                            : "border-white/10"
-                        }`}
-                      >
-                        {option}
-                      </button>
-
-                    ))}
-
-                  </div>
-
-                </div>
-
-                {/* SYRUPS */}
-
-                <div>
-
-                  <h3 className="text-xl mb-4">
-                    Syrups
-                  </h3>
-
-                  <div className="flex gap-4 flex-wrap">
-
-                    {syrupOptions.map((option) => (
-
-                      <button
-                        key={option}
-                        onClick={() =>
-                          toggleExtra(option)
-                        }
-                        className={`px-6 py-3 rounded-full border transition ${
-                          extras.includes(option)
-                            ? "bg-[#d6b98c] text-black border-[#d6b98c]"
-                            : "border-white/10"
-                        }`}
-                      >
-                        {option}
-                      </button>
-
-                    ))}
-
-                  </div>
-
-                </div>
+                <p className="text-[#d6b98c] mt-2">
+                  ${item.price}
+                </p>
 
               </div>
 
-            )}
-
-            {/* FOOD OPTIONS */}
-
-            {type === "food" && (
-
-              <div className="space-y-8">
-
-                <h3 className="text-xl">
-                  Preparation
-                </h3>
-
-                <div className="flex gap-4">
-
-                  {[
-                    "Regular",
-                    "Warm It",
-                  ].map((option) => (
-
-                    <button
-                      key={option}
-                      onClick={() =>
-                        setTemperature(option)
-                      }
-                      className={`px-6 py-3 rounded-full border transition ${
-                        temperature === option
-                          ? "bg-[#d6b98c] text-black border-[#d6b98c]"
-                          : "border-white/10"
-                      }`}
-                    >
-                      {option}
-                    </button>
-
-                  ))}
-
-                </div>
-
-              </div>
-
-            )}
-
-            {/* ACTIONS */}
-
-            <div className="flex gap-4 mt-12">
-
               <button
-                onClick={() => setOpen(false)}
-                className="flex-1 border border-white/10 py-4 rounded-full"
+                onClick={() =>
+                  setOpen(false)
+                }
+                className="text-3xl"
               >
-                Cancel
-              </button>
-
-              <button
-                onClick={handleAddToCart}
-                className="flex-1 bg-[#d6b98c] text-black py-4 rounded-full font-semibold"
-              >
-                Add To Cart
+                ×
               </button>
 
             </div>
+
+            {renderOptions()}
+
+            <div className="mt-10">
+
+              <p className="mb-3 text-[#d6b98c]">
+                Notes
+              </p>
+
+              <textarea
+                value={notes}
+                onChange={(e) =>
+                  setNotes(
+                    e.target.value
+                  )
+                }
+                placeholder="Special instructions..."
+                className="w-full h-28 bg-black/30 border border-white/10 rounded-2xl p-4 outline-none resize-none"
+              />
+
+            </div>
+
+            <button
+              onClick={
+                handleAddToCart
+              }
+              className="w-full mt-10 bg-[#d6b98c] text-black py-4 rounded-2xl text-xl font-semibold"
+            >
+              Add To Order
+            </button>
 
           </div>
 
         </div>
 
       )}
+
     </>
+
   );
+
 }

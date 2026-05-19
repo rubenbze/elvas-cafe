@@ -194,8 +194,9 @@ export default function OrderPage() {
 
                       <CustomizeDrinkModal
                         item={item}
-                        type={section.type}
-                      />
+                        category={section.title}
+                        />
+                        
 
                     </div>
 

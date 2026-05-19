@@ -13,6 +13,7 @@ type Order = {
   order_number: string;
   customer_name: string;
   customer_phone: string;
+  items: string;
   total: number;
   created_at: string;
 };
@@ -68,30 +69,29 @@ export default function AdminPage() {
             Admin Dashboard
           </h1>
 
-          <div>
+          <div className="space-y-8">
 
-            <h2 className="text-4xl mb-10 text-[#d6b98c]">
-              Live Orders
-            </h2>
+            {orders.map((order) => {
 
-            <div className="space-y-6">
+              const parsedItems =
+                JSON.parse(order.items);
 
-              {orders.map((order) => (
+              return (
 
                 <div
                   key={order.id}
-                  className="bg-black/40 border border-white/10 rounded-3xl p-6 backdrop-blur-xl"
+                  className="bg-black/40 border border-white/10 rounded-3xl p-8 backdrop-blur-xl"
                 >
 
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
 
                     <div>
 
-                      <h3 className="text-2xl font-semibold">
+                      <h2 className="text-3xl text-[#d6b98c]">
                         {order.order_number}
-                      </h3>
+                      </h2>
 
-                      <p className="text-gray-300 mt-2">
+                      <p className="mt-3 text-xl">
                         {order.customer_name}
                       </p>
 
@@ -99,16 +99,7 @@ export default function AdminPage() {
                         {order.customer_phone}
                       </p>
 
-                    </div>
-
-                    <div className="text-right">
-
-                      <p className="text-3xl text-[#d6b98c]">
-                        BZD $
-                        {Number(order.total).toFixed(2)}
-                      </p>
-
-                      <p className="text-sm text-gray-400 mt-2">
+                      <p className="text-sm text-gray-500 mt-3">
                         {new Date(
                           order.created_at
                         ).toLocaleString()}
@@ -116,23 +107,125 @@ export default function AdminPage() {
 
                     </div>
 
+                    <div className="text-right">
+
+                      <p className="text-4xl text-[#d6b98c]">
+                        $
+                        {Number(
+                          order.total
+                        ).toFixed(2)}
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                  <div className="mt-8 border-t border-white/10 pt-8 space-y-6">
+
+                    {parsedItems.map(
+                      (
+                        item: any,
+                        index: number
+                      ) => (
+
+                        <div
+                          key={index}
+                          className="border border-white/10 rounded-2xl p-5"
+                        >
+
+                          <div className="flex justify-between items-center">
+
+                            <div>
+
+                              <h3 className="text-2xl">
+                                {item.name}
+                              </h3>
+
+                              <p className="text-gray-400 mt-1">
+                                Qty:
+                                {" "}
+                                {item.quantity}
+                              </p>
+
+                            </div>
+
+                            <p className="text-[#d6b98c] text-xl">
+                              $
+                              {item.price}
+                            </p>
+
+                          </div>
+
+                          {item.customizations && (
+
+                            <div className="mt-5 text-sm text-[#d6b98c] space-y-2">
+
+                              {item.customizations.size && (
+
+                                <p>
+                                  Size:
+                                  {" "}
+                                  {item.customizations.size}
+                                </p>
+
+                              )}
+
+                              {item.customizations.temperature && (
+
+                                <p>
+                                  Temperature:
+                                  {" "}
+                                  {item.customizations.temperature}
+                                </p>
+
+                              )}
+
+                              {item.customizations.milk && (
+
+                                <p>
+                                  Milk:
+                                  {" "}
+                                  {item.customizations.milk}
+                                </p>
+
+                              )}
+
+                              {item.customizations.extras?.length > 0 && (
+
+                                <p>
+                                  Extras:
+                                  {" "}
+                                  {item.customizations.extras.join(", ")}
+                                </p>
+
+                              )}
+
+                              {item.customizations.notes && (
+
+                                <p>
+                                  Notes:
+                                  {" "}
+                                  {item.customizations.notes}
+                                </p>
+
+                              )}
+
+                            </div>
+
+                          )}
+
+                        </div>
+
+                      )
+                    )}
+
                   </div>
 
                 </div>
 
-              ))}
+              );
 
-              {orders.length === 0 && (
-
-                <div className="bg-black/30 border border-white/10 rounded-3xl p-10 text-center text-gray-400">
-
-                  No orders yet.
-
-                </div>
-
-              )}
-
-            </div>
+            })}
 
           </div>
 
