@@ -35,6 +35,8 @@ export default function CheckoutPage() {
   const [orderHistory, setOrderHistory] =
     useState<any[]>([]);
 
+  // MENU PRICES ALREADY INCLUDE GST
+
   const subtotal = cart.reduce(
     (acc, item) =>
       acc + item.price * item.quantity,
@@ -43,14 +45,7 @@ export default function CheckoutPage() {
 
   const gst = subtotal * 0.125;
 
-  const subtotal = cart.reduce(
-  (acc, item) => acc + item.price * item.quantity,
-  0
-);
-
-const gst = subtotal * 0.125;
-
-const total = subtotal;
+  const total = subtotal;
 
   useEffect(() => {
 
@@ -88,16 +83,6 @@ const total = subtotal;
 
       setError(
         "Your cart is empty."
-      );
-
-      return;
-
-    }
-
-    if (!supabase) {
-
-      setError(
-        "Supabase not connected."
       );
 
       return;
@@ -159,6 +144,8 @@ const total = subtotal;
 
       phone,
 
+      items: cart,
+
       createdAt:
         new Date().toLocaleString(),
 
@@ -196,7 +183,7 @@ const total = subtotal;
 
       <section className="relative z-10 pt-44 px-6 pb-20">
 
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
 
           <h1 className="text-6xl text-center mb-16">
             Checkout
@@ -236,21 +223,23 @@ const total = subtotal;
 
               </div>
 
+              {/* TOTALS */}
+
               <div className="mt-10 border-t border-white/10 pt-6 space-y-3">
 
                 <div className="flex justify-between">
 
-                  <p>Subtotal</p>
+                  <p>Included Base Price</p>
 
                   <p>
-                    ${subtotal.toFixed(2)}
+                    ${(subtotal - gst).toFixed(2)}
                   </p>
 
                 </div>
 
                 <div className="flex justify-between">
 
-                  <p>GST (12.5%)</p>
+                  <p>GST Included (12.5%)</p>
 
                   <p>
                     ${gst.toFixed(2)}
@@ -270,6 +259,8 @@ const total = subtotal;
 
               </div>
 
+              {/* ERROR */}
+
               {error && (
 
                 <div className="mt-6 bg-red-500/20 border border-red-500 rounded-xl p-4 text-red-300">
@@ -279,6 +270,8 @@ const total = subtotal;
                 </div>
 
               )}
+
+              {/* SUCCESS */}
 
               {success && (
 
@@ -294,7 +287,7 @@ const total = subtotal;
                 onClick={
                   handleSubmitOrder
                 }
-                className="w-full mt-10 bg-[#d6b98c] text-black py-4 rounded-2xl text-lg font-semibold"
+                className="w-full mt-10 bg-[#d6b98c] text-black py-4 rounded-2xl text-lg font-semibold hover:scale-[1.01] transition"
               >
                 Submit Order
               </button>
@@ -346,7 +339,91 @@ const total = subtotal;
                         {order.total.toFixed(2)}
                       </p>
 
-                      <p className="text-sm text-gray-500 mt-2">
+                      {/* ITEMS */}
+
+                      <div className="mt-4 space-y-3">
+
+                        {order.items?.map(
+                          (
+                            item: any,
+                            i: number
+                          ) => (
+
+                            <div
+                              key={i}
+                              className="bg-black/30 border border-white/10 rounded-xl p-4"
+                            >
+
+                              <div className="flex justify-between">
+
+                                <p>
+                                  {item.quantity}x{" "}
+                                  {item.name}
+                                </p>
+
+                                <p>
+                                  $
+                                  {item.price}
+                                </p>
+
+                              </div>
+
+                              {item.customizations && (
+
+                                <div className="mt-3 text-sm text-gray-400 space-y-1">
+
+                                  {item.customizations.size && (
+                                    <p>
+                                      Size:
+                                      {" "}
+                                      {item.customizations.size}
+                                    </p>
+                                  )}
+
+                                  {item.customizations.temperature && (
+                                    <p>
+                                      Temp:
+                                      {" "}
+                                      {item.customizations.temperature}
+                                    </p>
+                                  )}
+
+                                  {item.customizations.milk && (
+                                    <p>
+                                      Milk:
+                                      {" "}
+                                      {item.customizations.milk}
+                                    </p>
+                                  )}
+
+                                  {item.customizations.extras?.length > 0 && (
+                                    <p>
+                                      Extras:
+                                      {" "}
+                                      {item.customizations.extras.join(", ")}
+                                    </p>
+                                  )}
+
+                                  {item.customizations.notes && (
+                                    <p>
+                                      Notes:
+                                      {" "}
+                                      {item.customizations.notes}
+                                    </p>
+                                  )}
+
+                                </div>
+
+                              )}
+
+                            </div>
+
+                          )
+                        )}
+
+                      </div>
+
+                      <p className="text-sm text-gray-500 mt-4">
                         {order.createdAt}
                       </p>
 
