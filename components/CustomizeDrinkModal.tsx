@@ -110,13 +110,9 @@ export default function CustomizeDrinkModal({
 
       {open && (
 
-        <div
-          className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
-        >
+        <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
 
-          <div
-            className="relative bg-[#111] border border-white/10 rounded-3xl w-full max-w-2xl h-[82vh] overflow-hidden flex flex-col"
-          >
+          <div className="relative bg-[#111] border border-white/10 rounded-3xl w-full max-w-2xl h-[78vh] mt-24 overflow-hidden flex flex-col">
 
             {/* HEADER */}
 

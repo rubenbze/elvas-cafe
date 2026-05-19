@@ -2,238 +2,315 @@
 
 import { useEffect, useState } from "react";
 
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import PageBackground from "@/components/PageBackground";
+import { createClient } from "@supabase/supabase-js";
 
-import { supabase } from "@/lib/supabase";
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL!;
 
-type Order = {
-  id: number;
-  order_number: string;
-  customer_name: string;
-  customer_phone: string;
-  items: string;
-  total: number;
-  created_at: string;
-};
+const supabaseKey =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+const supabase =
+  createClient(
+    supabaseUrl,
+    supabaseKey
+  );
 
 export default function AdminPage() {
 
+  const [password, setPassword] =
+    useState("");
+
+  const [authenticated, setAuthenticated] =
+    useState(false);
+
   const [orders, setOrders] =
-    useState<Order[]>([]);
+    useState<any[]>([]);
 
-  useEffect(() => {
+  const [reservations, setReservations] =
+    useState<any[]>([]);
 
-    fetchOrders();
-
-  }, []);
+  const [menuItems, setMenuItems] =
+    useState<any[]>([]);
 
   async function fetchOrders() {
 
-    if (!supabase) return;
+    const { data } = await supabase
+      .from("orders")
+      .select("*")
+      .order("created_at", {
+        ascending: false,
+      });
 
-    const { data, error } =
-      await supabase
-        .from("orders")
-        .select("*")
-        .order("created_at", {
-          ascending: false,
-        });
+    if (data) {
 
-    if (error) {
-
-      console.error(error);
-
-      return;
+      setOrders(data);
 
     }
 
-    setOrders(data || []);
+  }
+
+  async function fetchReservations() {
+
+    const { data } = await supabase
+      .from("reservations")
+      .select("*")
+      .order("created_at", {
+        ascending: false,
+      });
+
+    if (data) {
+
+      setReservations(data);
+
+    }
+
+  }
+
+  async function fetchMenu() {
+
+    const { data } = await supabase
+      .from("menu_items")
+      .select("*");
+
+    if (data) {
+
+      setMenuItems(data);
+
+    }
+
+  }
+
+  useEffect(() => {
+
+    if (authenticated) {
+
+      fetchOrders();
+      fetchReservations();
+      fetchMenu();
+
+    }
+
+  }, [authenticated]);
+
+  function handleLogin() {
+
+    if (password === "elvasadmin") {
+
+      setAuthenticated(true);
+
+    } else {
+
+      alert("Incorrect Password");
+
+    }
+
+  }
+
+  async function deleteMenuItem(id: number) {
+
+    await supabase
+      .from("menu_items")
+      .delete()
+      .eq("id", id);
+
+    fetchMenu();
+
+  }
+
+  if (!authenticated) {
+
+    return (
+
+      <main className="min-h-screen bg-black text-white flex items-center justify-center px-6">
+
+        <div className="bg-[#111] border border-white/10 rounded-3xl p-10 w-full max-w-md">
+
+          <h1 className="text-4xl mb-8 text-center text-[#f5e6c8]">
+            Admin Login
+          </h1>
+
+          <input
+            type="password"
+            placeholder="Admin Password"
+            value={password}
+            onChange={(e) =>
+              setPassword(e.target.value)
+            }
+            className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 mb-6 outline-none"
+          />
+
+          <button
+            onClick={handleLogin}
+            className="w-full bg-[#d6b98c] text-black py-4 rounded-2xl font-semibold"
+          >
+            Login
+          </button>
+
+        </div>
+
+      </main>
+
+    );
 
   }
 
   return (
 
-    <main className="relative min-h-screen overflow-hidden text-white">
+    <main className="min-h-screen bg-black text-white px-6 py-16">
 
-      <PageBackground />
+      <div className="max-w-7xl mx-auto space-y-20">
 
-      <Navbar />
+        <h1 className="text-6xl text-[#f5e6c8]">
+          Elva's Admin Dashboard
+        </h1>
 
-      <section className="relative z-10 pt-44 px-6 pb-20">
+        {/* ORDERS */}
 
-        <div className="max-w-7xl mx-auto">
+        <section>
 
-          <h1 className="text-6xl text-center mb-20 text-[#f5e6c8]">
-            Admin Dashboard
-          </h1>
+          <h2 className="text-4xl mb-8">
+            Orders
+          </h2>
 
-          <div className="space-y-8">
+          <div className="space-y-6">
 
-            {orders.map((order) => {
+            {orders.map((order) => (
 
-              const parsedItems =
-                JSON.parse(order.items);
+              <div
+                key={order.id}
+                className="bg-[#111] border border-white/10 rounded-3xl p-6"
+              >
 
-              return (
+                <p>
+                  <strong>Name:</strong>{" "}
+                  {order.customer_name}
+                </p>
 
-                <div
-                  key={order.id}
-                  className="bg-black/40 border border-white/10 rounded-3xl p-8 backdrop-blur-xl"
-                >
+                <p>
+                  <strong>Phone:</strong>{" "}
+                  {order.phone}
+                </p>
 
-                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
+                <p>
+                  <strong>Total:</strong>{" "}
+                  ${order.total}
+                </p>
 
-                    <div>
+                <div className="mt-4">
 
-                      <h2 className="text-3xl text-[#d6b98c]">
-                        {order.order_number}
-                      </h2>
+                  <strong>Items:</strong>
 
-                      <p className="mt-3 text-xl">
-                        {order.customer_name}
-                      </p>
-
-                      <p className="text-gray-400">
-                        {order.customer_phone}
-                      </p>
-
-                      <p className="text-sm text-gray-500 mt-3">
-                        {new Date(
-                          order.created_at
-                        ).toLocaleString()}
-                      </p>
-
-                    </div>
-
-                    <div className="text-right">
-
-                      <p className="text-4xl text-[#d6b98c]">
-                        $
-                        {Number(
-                          order.total
-                        ).toFixed(2)}
-                      </p>
-
-                    </div>
-
-                  </div>
-
-                  <div className="mt-8 border-t border-white/10 pt-8 space-y-6">
-
-                    {parsedItems.map(
-                      (
-                        item: any,
-                        index: number
-                      ) => (
-
-                        <div
-                          key={index}
-                          className="border border-white/10 rounded-2xl p-5"
-                        >
-
-                          <div className="flex justify-between items-center">
-
-                            <div>
-
-                              <h3 className="text-2xl">
-                                {item.name}
-                              </h3>
-
-                              <p className="text-gray-400 mt-1">
-                                Qty:
-                                {" "}
-                                {item.quantity}
-                              </p>
-
-                            </div>
-
-                            <p className="text-[#d6b98c] text-xl">
-                              $
-                              {item.price}
-                            </p>
-
-                          </div>
-
-                          {item.customizations && (
-
-                            <div className="mt-5 text-sm text-[#d6b98c] space-y-2">
-
-                              {item.customizations.size && (
-
-                                <p>
-                                  Size:
-                                  {" "}
-                                  {item.customizations.size}
-                                </p>
-
-                              )}
-
-                              {item.customizations.temperature && (
-
-                                <p>
-                                  Temperature:
-                                  {" "}
-                                  {item.customizations.temperature}
-                                </p>
-
-                              )}
-
-                              {item.customizations.milk && (
-
-                                <p>
-                                  Milk:
-                                  {" "}
-                                  {item.customizations.milk}
-                                </p>
-
-                              )}
-
-                              {item.customizations.extras?.length > 0 && (
-
-                                <p>
-                                  Extras:
-                                  {" "}
-                                  {item.customizations.extras.join(", ")}
-                                </p>
-
-                              )}
-
-                              {item.customizations.notes && (
-
-                                <p>
-                                  Notes:
-                                  {" "}
-                                  {item.customizations.notes}
-                                </p>
-
-                              )}
-
-                            </div>
-
-                          )}
-
-                        </div>
-
-                      )
+                  <pre className="mt-2 text-sm text-gray-300 whitespace-pre-wrap">
+                    {JSON.stringify(
+                      order.items,
+                      null,
+                      2
                     )}
-
-                  </div>
+                  </pre>
 
                 </div>
 
-              );
+              </div>
 
-            })}
+            ))}
 
           </div>
 
-        </div>
+        </section>
 
-      </section>
+        {/* RESERVATIONS */}
 
-      <Footer />
+        <section>
+
+          <h2 className="text-4xl mb-8">
+            Reservations
+          </h2>
+
+          <div className="space-y-6">
+
+            {reservations.map((reservation) => (
+
+              <div
+                key={reservation.id}
+                className="bg-[#111] border border-white/10 rounded-3xl p-6"
+              >
+
+                <p>
+                  <strong>Name:</strong>{" "}
+                  {reservation.name}
+                </p>
+
+                <p>
+                  <strong>Guests:</strong>{" "}
+                  {reservation.guests}
+                </p>
+
+                <p>
+                  <strong>Date:</strong>{" "}
+                  {reservation.date}
+                </p>
+
+                <p>
+                  <strong>Time:</strong>{" "}
+                  {reservation.time}
+                </p>
+
+              </div>
+
+            ))}
+
+          </div>
+
+        </section>
+
+        {/* MENU */}
+
+        <section>
+
+          <h2 className="text-4xl mb-8">
+            Menu Items
+          </h2>
+
+          <div className="space-y-4">
+
+            {menuItems.map((item) => (
+
+              <div
+                key={item.id}
+                className="bg-[#111] border border-white/10 rounded-3xl p-6 flex items-center justify-between"
+              >
+
+                <div>
+
+                  <p className="text-2xl">
+                    {item.name}
+                  </p>
+
+                  <p className="text-[#d6b98c]">
+                    ${item.price}
+                  </p>
+
+                </div>
+
+                <button
+                  onClick={() =>
+                    deleteMenuItem(item.id)
+                  }
+                  className="bg-red-500 px-5 py-3 rounded-2xl"
+                >
+                  Delete
+                </button>
+
+              </div>
+
+            ))}
+
+          </div>
+
+        </section>
+
+      </div>
 
     </main>
 
