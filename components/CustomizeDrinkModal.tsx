@@ -49,25 +49,6 @@ export default function CustomizeDrinkModal({
 
   }, []);
 
-  const buttonBase =
-    "px-5 py-3 rounded-2xl border transition duration-200";
-
-  const activeButton =
-    "bg-[#d6b98c] text-black border-[#d6b98c]";
-
-  const inactiveButton =
-    "bg-black/30 border-white/10 text-white hover:border-[#d6b98c]";
-
-  function buttonStyle(active: boolean) {
-
-    return `${buttonBase} ${
-      active
-        ? activeButton
-        : inactiveButton
-    }`;
-
-  }
-
   function toggleExtra(extra: string) {
 
     if (extras.includes(extra)) {
@@ -108,20 +89,110 @@ export default function CustomizeDrinkModal({
 
   }
 
-  const coffeeExtras = [
-    "Extra Espresso Shot",
-    "Vanilla Syrup",
-    "Caramel Syrup",
-    "Hazelnut Syrup",
-    "Whipped Cream",
-    "Caramel Drizzle",
-  ];
+  const options: any = {
+
+    Coffee: {
+      sizes: true,
+      temperature: true,
+
+      milk: [
+        "Whole Milk",
+        "Oat Milk",
+        "Almond Milk",
+        "Soy Milk",
+      ],
+
+      extras: [
+        "Extra Espresso Shot",
+        "Vanilla Syrup",
+        "Caramel Syrup",
+        "Hazelnut Syrup",
+        "Whipped Cream",
+        "Caramel Drizzle",
+      ],
+    },
+
+    Matcha: {
+      sizes: true,
+      temperature: true,
+
+      milk: [
+        "Whole Milk",
+        "Oat Milk",
+        "Almond Milk",
+      ],
+
+      extras: [
+        "Cold Foam",
+        "Vanilla Syrup",
+        "Brown Sugar Syrup",
+      ],
+    },
+
+    Refreshers: {
+      sizes: true,
+
+      extras: [
+        "Lemonade",
+        "Coconut Milk",
+        "Extra Fruit",
+        "Light Ice",
+        "No Ice",
+      ],
+    },
+
+    Pastries: {
+      extras: [
+        "Warm It Up",
+      ],
+    },
+
+    Desserts: {
+      extras: [
+        "Add Ice Cream",
+        "Extra Chocolate Drizzle",
+        "Extra Caramel Drizzle",
+      ],
+    },
+
+    Entrees: {
+      extras: [
+        "Extra Cheese",
+        "Add Chicken",
+        "Add Bacon",
+        "Warm It Up",
+        "Remove Tomatoes",
+        "Remove Onion",
+      ],
+    },
+
+  };
+
+  const current =
+    options[category] || {};
+
+  const buttonBase =
+    "px-4 py-3 rounded-2xl border transition duration-200";
+
+  const activeButton =
+    "bg-[#d6b98c] text-black border-[#d6b98c]";
+
+  const inactiveButton =
+    "bg-black/30 border-white/10 text-white hover:border-[#d6b98c]";
+
+  function buttonStyle(active: boolean) {
+
+    return `${buttonBase} ${
+      active
+        ? activeButton
+        : inactiveButton
+    }`;
+
+  }
 
   return (
 
     <>
-
-      {/* ADD BUTTON */}
 
       <button
         onClick={() => setOpen(true)}
@@ -132,38 +203,36 @@ export default function CustomizeDrinkModal({
 
       </button>
 
-      {/* PORTAL MODAL */}
-
       {mounted &&
         open &&
         createPortal(
 
-          <div className="fixed inset-0 z-[999999] bg-black/70 backdrop-blur-md overflow-y-auto">
+          <div className="fixed inset-0 z-[999999] bg-black/80 backdrop-blur-md overflow-y-auto">
 
-            <div className="min-h-screen flex items-center justify-center p-6">
+            <div className="min-h-screen flex items-center justify-center p-4 md:p-8">
 
-              <div className="relative w-full max-w-3xl bg-[#111] border border-white/10 rounded-[36px] p-8 md:p-10 shadow-2xl">
+              <div className="relative w-full max-w-3xl bg-[#111] border border-white/10 rounded-[36px] p-6 md:p-10 shadow-2xl">
 
                 {/* CLOSE */}
 
                 <button
                   onClick={() => setOpen(false)}
-                  className="absolute top-6 right-6 w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition"
+                  className="absolute top-5 right-5 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition"
                 >
 
-                  <X size={30} />
+                  <X size={26} />
 
                 </button>
 
                 {/* TITLE */}
 
-                <h2 className="text-5xl text-[#f5e6c8] mb-4">
+                <h2 className="text-4xl md:text-5xl text-[#f5e6c8] mb-4 pr-16">
 
                   {item.name}
 
                 </h2>
 
-                <p className="text-[#d6b98c] text-2xl mb-12">
+                <p className="text-[#d6b98c] text-2xl mb-10">
 
                   ${item.price}
 
@@ -171,142 +240,155 @@ export default function CustomizeDrinkModal({
 
                 {/* SIZE */}
 
-                <div className="mb-10">
+                {current.sizes && (
 
-                  <h3 className="text-2xl mb-5">
-                    Size
-                  </h3>
+                  <div className="mb-10">
 
-                  <div className="flex flex-wrap gap-4">
+                    <h3 className="text-2xl mb-5">
+                      Size
+                    </h3>
 
-                    {["8oz", "12oz", "16oz"].map(
-                      (option) => (
+                    <div className="flex flex-wrap gap-4">
 
-                        <button
-                          key={option}
-                          onClick={() =>
-                            setSize(option)
-                          }
-                          className={buttonStyle(
-                            size === option
-                          )}
-                        >
+                      {["8oz", "12oz", "16oz"].map(
+                        (option: string) => (
 
-                          {option}
+                          <button
+                            key={option}
+                            onClick={() =>
+                              setSize(option)
+                            }
+                            className={buttonStyle(
+                              size === option
+                            )}
+                          >
 
-                        </button>
+                            {option}
 
-                      )
-                    )}
+                          </button>
 
-                  </div>
+                        )
+                      )}
 
-                </div>
-
-                {/* TEMPERATURE */}
-
-                <div className="mb-10">
-
-                  <h3 className="text-2xl mb-5">
-                    Temperature
-                  </h3>
-
-                  <div className="flex flex-wrap gap-4">
-
-                    {["Hot", "Iced"].map(
-                      (option) => (
-
-                        <button
-                          key={option}
-                          onClick={() =>
-                            setTemperature(option)
-                          }
-                          className={buttonStyle(
-                            temperature === option
-                          )}
-                        >
-
-                          {option}
-
-                        </button>
-
-                      )
-                    )}
+                    </div>
 
                   </div>
 
-                </div>
+                )}
+
+                {/* TEMP */}
+
+                {current.temperature && (
+
+                  <div className="mb-10">
+
+                    <h3 className="text-2xl mb-5">
+                      Temperature
+                    </h3>
+
+                    <div className="flex flex-wrap gap-4">
+
+                      {["Hot", "Iced"].map(
+                        (option: string) => (
+
+                          <button
+                            key={option}
+                            onClick={() =>
+                              setTemperature(option)
+                            }
+                            className={buttonStyle(
+                              temperature === option
+                            )}
+                          >
+
+                            {option}
+
+                          </button>
+
+                        )
+                      )}
+
+                    </div>
+
+                  </div>
+
+                )}
 
                 {/* MILK */}
 
-                <div className="mb-10">
+                {current.milk && (
 
-                  <h3 className="text-2xl mb-5">
-                    Milk
-                  </h3>
+                  <div className="mb-10">
 
-                  <div className="flex flex-wrap gap-4">
+                    <h3 className="text-2xl mb-5">
+                      Milk
+                    </h3>
 
-                    {[
-                      "Whole Milk",
-                      "Oat Milk",
-                      "Almond Milk",
-                      "Soy Milk",
-                    ].map((option) => (
+                    <div className="flex flex-wrap gap-4">
 
-                      <button
-                        key={option}
-                        onClick={() =>
-                          setMilk(option)
-                        }
-                        className={buttonStyle(
-                          milk === option
-                        )}
-                      >
+                      {current.milk.map(
+                        (option: string) => (
 
-                        {option}
+                          <button
+                            key={option}
+                            onClick={() =>
+                              setMilk(option)
+                            }
+                            className={buttonStyle(
+                              milk === option
+                            )}
+                          >
 
-                      </button>
+                            {option}
 
-                    ))}
+                          </button>
+
+                        )
+                      )}
+
+                    </div>
 
                   </div>
 
-                </div>
+                )}
 
                 {/* EXTRAS */}
 
-                <div className="mb-10">
+                {current.extras && (
 
-                  <h3 className="text-2xl mb-5">
-                    Extras
-                  </h3>
+                  <div className="mb-10">
 
-                  <div className="flex flex-wrap gap-4">
+                    <h3 className="text-2xl mb-5">
+                      Add Ons
+                    </h3>
 
-                    {coffeeExtras.map(
-                      (extra) => (
+                    <div className="flex flex-wrap gap-4">
 
-                        <button
-                          key={extra}
-                          onClick={() =>
-                            toggleExtra(extra)
-                          }
-                          className={buttonStyle(
-                            extras.includes(extra)
-                          )}
-                        >
+                      {current.extras.map(
+                        (extra: string) => (
 
-                          {extra}
+                          <button
+                            key={extra}
+                            onClick={() =>
+                              toggleExtra(extra)
+                            }
+                            className={buttonStyle(
+                              extras.includes(extra)
+                            )}
+                          >
 
-                        </button>
+                            {extra}
 
-                      )
-                    )}
+                          </button>
+
+                        )
+                      )}
+
+                    </div>
 
                   </div>
 
-                </div>
+                )}
 
                 {/* NOTES */}
 
@@ -329,7 +411,7 @@ export default function CustomizeDrinkModal({
 
                 </div>
 
-                {/* ADD BUTTON */}
+                {/* BUTTON */}
 
                 <button
                   onClick={handleAddToCart}
