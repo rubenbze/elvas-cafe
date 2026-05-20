@@ -2,546 +2,356 @@
 
 import { useEffect, useState } from "react";
 
-import { X } from "lucide-react";
+import { createPortal } from "react-dom";
+
+import { X, Plus } from "lucide-react";
 
 import { useCartStore } from "@/store/cartStore";
 
 interface Props {
-item: {
-id: number;
-name: string;
-price: number;
-};
-
-category: string;
+  item: any;
+  category: string;
 }
 
 export default function CustomizeDrinkModal({
-item,
-category,
+  item,
+  category,
 }: Props) {
 
-const addToCart = useCartStore(
-(state) => state.addToCart
-);
-
-const [open, setOpen] =
-useState(false);
-
-const [size, setSize] =
-useState("16oz");
-
-const [temperature, setTemperature] =
-useState("Iced");
-
-const [milk, setMilk] =
-useState("Whole Milk");
-
-const [extras, setExtras] =
-useState<string[]>([]);
-
-const [notes, setNotes] =
-useState("");
-
-useEffect(() => {
-
-```
-if (open) {
-
-  document.body.style.overflow =
-    "hidden";
-
-} else {
-
-  document.body.style.overflow =
-    "auto";
-
-}
-
-return () => {
-
-  document.body.style.overflow =
-    "auto";
-
-};
-```
-
-}, [open]);
-
-function toggleExtra(extra: string) {
-
-```
-if (extras.includes(extra)) {
-
-  setExtras(
-    extras.filter(
-      (e) => e !== extra
-    )
+  const addToCart = useCartStore(
+    (state) => state.addToCart
   );
 
-} else {
+  const [mounted, setMounted] =
+    useState(false);
 
-  setExtras([
-    ...extras,
-    extra,
-  ]);
+  const [open, setOpen] =
+    useState(false);
 
-}
-```
+  const [size, setSize] =
+    useState("16oz");
 
-}
+  const [temperature, setTemperature] =
+    useState("Iced");
 
-function handleAddToCart() {
+  const [milk, setMilk] =
+    useState("");
 
-```
-addToCart({
-  id: item.id,
-  name: item.name,
-  price: item.price,
-  quantity: 1,
+  const [extras, setExtras] =
+    useState<string[]>([]);
 
-  customizations: {
-    size,
-    temperature,
-    milk,
-    extras,
-    notes,
-  },
-});
+  const [notes, setNotes] =
+    useState("");
 
-setOpen(false);
-```
+  useEffect(() => {
 
-}
+    setMounted(true);
 
-const coffeeExtras = [
-"Extra Espresso Shot",
-"Caramel Syrup",
-"Vanilla Syrup",
-"Hazelnut Syrup",
-"Whipped Cream",
-"Caramel Drizzle",
-];
+  }, []);
 
-const refresherExtras = [
-"Lemonade",
-"Coconut Milk",
-"Extra Fruit",
-"Light Ice",
-"No Ice",
-];
+  const buttonBase =
+    "px-5 py-3 rounded-2xl border transition duration-200";
 
-const entreeExtras = [
-"Extra Cheese",
-"Add Chicken",
-"Add Bacon",
-"Warm It Up",
-];
+  const activeButton =
+    "bg-[#d6b98c] text-black border-[#d6b98c]";
 
-const dessertExtras = [
-"Add Ice Cream",
-"Extra Drizzle",
-];
+  const inactiveButton =
+    "bg-black/30 border-white/10 text-white hover:border-[#d6b98c]";
 
-function renderOptions() {
+  function buttonStyle(active: boolean) {
 
-```
-if (
-  category === "Coffee" ||
-  category === "Matcha"
-) {
+    return `${buttonBase} ${
+      active
+        ? activeButton
+        : inactiveButton
+    }`;
+
+  }
+
+  function toggleExtra(extra: string) {
+
+    if (extras.includes(extra)) {
+
+      setExtras(
+        extras.filter(
+          (e) => e !== extra
+        )
+      );
+
+    } else {
+
+      setExtras([
+        ...extras,
+        extra,
+      ]);
+
+    }
+
+  }
+
+  function handleAddToCart() {
+
+    addToCart({
+      ...item,
+      quantity: 1,
+
+      customizations: {
+        size,
+        temperature,
+        milk,
+        extras,
+        notes,
+      },
+    });
+
+    setOpen(false);
+
+  }
+
+  const coffeeExtras = [
+    "Extra Espresso Shot",
+    "Vanilla Syrup",
+    "Caramel Syrup",
+    "Hazelnut Syrup",
+    "Whipped Cream",
+    "Caramel Drizzle",
+  ];
 
   return (
+
     <>
 
-      {/* SIZE */}
-
-      <div className="space-y-4">
-
-        <h3 className="text-lg text-[#d6b98c]">
-          Size
-        </h3>
-
-        <div className="flex flex-wrap gap-3">
-
-          {["8oz", "12oz", "16oz"].map(
-            (option) => (
-
-              <button
-                key={option}
-                onClick={() =>
-                  setSize(option)
-                }
-                className={`px-6 py-3 rounded-2xl border transition ${
-                  size === option
-                    ? "bg-[#d6b98c] text-black border-[#d6b98c]"
-                    : "border-white/10 bg-black/30"
-                }`}
-              >
-                {option}
-              </button>
-
-            )
-          )}
-
-        </div>
-
-      </div>
-
-      {/* TEMPERATURE */}
-
-      <div className="space-y-4">
-
-        <h3 className="text-lg text-[#d6b98c]">
-          Temperature
-        </h3>
-
-        <div className="flex gap-3">
-
-          {["Hot", "Iced"].map(
-            (option) => (
-
-              <button
-                key={option}
-                onClick={() =>
-                  setTemperature(
-                    option
-                  )
-                }
-                className={`px-6 py-3 rounded-2xl border transition ${
-                  temperature === option
-                    ? "bg-[#d6b98c] text-black border-[#d6b98c]"
-                    : "border-white/10 bg-black/30"
-                }`}
-              >
-                {option}
-              </button>
-
-            )
-          )}
-
-        </div>
-
-      </div>
-
-      {/* MILK */}
-
-      <div className="space-y-4">
-
-        <h3 className="text-lg text-[#d6b98c]">
-          Milk
-        </h3>
-
-        <div className="flex flex-wrap gap-3">
-
-          {[
-            "Whole Milk",
-            "Oat Milk",
-            "Almond Milk",
-            "Soy Milk",
-          ].map((option) => (
-
-            <button
-              key={option}
-              onClick={() =>
-                setMilk(option)
-              }
-              className={`px-5 py-3 rounded-2xl border transition ${
-                milk === option
-                  ? "bg-[#d6b98c] text-black border-[#d6b98c]"
-                  : "border-white/10 bg-black/30"
-              }`}
-            >
-              {option}
-            </button>
-
-          ))}
-
-        </div>
-
-      </div>
-
-      {/* EXTRAS */}
-
-      <div className="space-y-4">
-
-        <h3 className="text-lg text-[#d6b98c]">
-          Extras
-        </h3>
-
-        <div className="flex flex-wrap gap-3">
-
-          {coffeeExtras.map(
-            (extra) => (
-
-              <button
-                key={extra}
-                onClick={() =>
-                  toggleExtra(extra)
-                }
-                className={`px-5 py-3 rounded-2xl border transition ${
-                  extras.includes(extra)
-                    ? "bg-[#d6b98c] text-black border-[#d6b98c]"
-                    : "border-white/10 bg-black/30"
-                }`}
-              >
-                {extra}
-              </button>
-
-            )
-          )}
-
-        </div>
-
-      </div>
-
-    </>
-  );
-
-}
-
-if (category === "Refreshers") {
-
-  return (
-    <div className="space-y-4">
-
-      <h3 className="text-lg text-[#d6b98c]">
-        Customize
-      </h3>
-
-      <div className="flex flex-wrap gap-3">
-
-        {refresherExtras.map(
-          (extra) => (
-
-            <button
-              key={extra}
-              onClick={() =>
-                toggleExtra(extra)
-              }
-              className={`px-5 py-3 rounded-2xl border transition ${
-                extras.includes(extra)
-                  ? "bg-[#d6b98c] text-black border-[#d6b98c]"
-                  : "border-white/10 bg-black/30"
-              }`}
-            >
-              {extra}
-            </button>
-
-          )
-        )}
-
-      </div>
-
-    </div>
-  );
-
-}
-
-if (category === "Pastries") {
-
-  return (
-    <div className="space-y-4">
-
-      <h3 className="text-lg text-[#d6b98c]">
-        Pastry Options
-      </h3>
+      {/* ADD BUTTON */}
 
       <button
-        onClick={() =>
-          toggleExtra("Warm It Up")
-        }
-        className={`px-5 py-3 rounded-2xl border transition ${
-          extras.includes(
-            "Warm It Up"
-          )
-            ? "bg-[#d6b98c] text-black border-[#d6b98c]"
-            : "border-white/10 bg-black/30"
-        }`}
+        onClick={() => setOpen(true)}
+        className="w-16 h-16 rounded-full bg-[#d6b98c] text-black flex items-center justify-center hover:scale-105 transition"
       >
-        Warm It Up
+
+        <Plus size={28} />
+
       </button>
 
-    </div>
-  );
+      {/* PORTAL MODAL */}
 
-}
+      {mounted &&
+        open &&
+        createPortal(
 
-if (category === "Desserts") {
+          <div className="fixed inset-0 z-[999999] bg-black/70 backdrop-blur-md overflow-y-auto">
 
-  return (
-    <div className="space-y-4">
+            <div className="min-h-screen flex items-center justify-center p-6">
 
-      <h3 className="text-lg text-[#d6b98c]">
-        Dessert Extras
-      </h3>
+              <div className="relative w-full max-w-3xl bg-[#111] border border-white/10 rounded-[36px] p-8 md:p-10 shadow-2xl">
 
-      <div className="flex flex-wrap gap-3">
+                {/* CLOSE */}
 
-        {dessertExtras.map(
-          (extra) => (
+                <button
+                  onClick={() => setOpen(false)}
+                  className="absolute top-6 right-6 w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition"
+                >
 
-            <button
-              key={extra}
-              onClick={() =>
-                toggleExtra(extra)
-              }
-              className={`px-5 py-3 rounded-2xl border transition ${
-                extras.includes(extra)
-                  ? "bg-[#d6b98c] text-black border-[#d6b98c]"
-                  : "border-white/10 bg-black/30"
-              }`}
-            >
-              {extra}
-            </button>
+                  <X size={30} />
 
-          )
+                </button>
+
+                {/* TITLE */}
+
+                <h2 className="text-5xl text-[#f5e6c8] mb-4">
+
+                  {item.name}
+
+                </h2>
+
+                <p className="text-[#d6b98c] text-2xl mb-12">
+
+                  ${item.price}
+
+                </p>
+
+                {/* SIZE */}
+
+                <div className="mb-10">
+
+                  <h3 className="text-2xl mb-5">
+                    Size
+                  </h3>
+
+                  <div className="flex flex-wrap gap-4">
+
+                    {["8oz", "12oz", "16oz"].map(
+                      (option) => (
+
+                        <button
+                          key={option}
+                          onClick={() =>
+                            setSize(option)
+                          }
+                          className={buttonStyle(
+                            size === option
+                          )}
+                        >
+
+                          {option}
+
+                        </button>
+
+                      )
+                    )}
+
+                  </div>
+
+                </div>
+
+                {/* TEMPERATURE */}
+
+                <div className="mb-10">
+
+                  <h3 className="text-2xl mb-5">
+                    Temperature
+                  </h3>
+
+                  <div className="flex flex-wrap gap-4">
+
+                    {["Hot", "Iced"].map(
+                      (option) => (
+
+                        <button
+                          key={option}
+                          onClick={() =>
+                            setTemperature(option)
+                          }
+                          className={buttonStyle(
+                            temperature === option
+                          )}
+                        >
+
+                          {option}
+
+                        </button>
+
+                      )
+                    )}
+
+                  </div>
+
+                </div>
+
+                {/* MILK */}
+
+                <div className="mb-10">
+
+                  <h3 className="text-2xl mb-5">
+                    Milk
+                  </h3>
+
+                  <div className="flex flex-wrap gap-4">
+
+                    {[
+                      "Whole Milk",
+                      "Oat Milk",
+                      "Almond Milk",
+                      "Soy Milk",
+                    ].map((option) => (
+
+                      <button
+                        key={option}
+                        onClick={() =>
+                          setMilk(option)
+                        }
+                        className={buttonStyle(
+                          milk === option
+                        )}
+                      >
+
+                        {option}
+
+                      </button>
+
+                    ))}
+
+                  </div>
+
+                </div>
+
+                {/* EXTRAS */}
+
+                <div className="mb-10">
+
+                  <h3 className="text-2xl mb-5">
+                    Extras
+                  </h3>
+
+                  <div className="flex flex-wrap gap-4">
+
+                    {coffeeExtras.map(
+                      (extra) => (
+
+                        <button
+                          key={extra}
+                          onClick={() =>
+                            toggleExtra(extra)
+                          }
+                          className={buttonStyle(
+                            extras.includes(extra)
+                          )}
+                        >
+
+                          {extra}
+
+                        </button>
+
+                      )
+                    )}
+
+                  </div>
+
+                </div>
+
+                {/* NOTES */}
+
+                <div className="mb-12">
+
+                  <h3 className="text-2xl mb-5">
+                    Notes
+                  </h3>
+
+                  <textarea
+                    value={notes}
+                    onChange={(e) =>
+                      setNotes(
+                        e.target.value
+                      )
+                    }
+                    placeholder="Special instructions..."
+                    className="w-full h-36 rounded-2xl bg-black/30 border border-white/10 p-5 outline-none"
+                  />
+
+                </div>
+
+                {/* ADD BUTTON */}
+
+                <button
+                  onClick={handleAddToCart}
+                  className="w-full py-5 rounded-2xl bg-[#d6b98c] text-black text-xl font-semibold hover:scale-[1.01] transition"
+                >
+
+                  Add To Cart
+
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>,
+
+          document.body
+
         )}
 
-      </div>
+    </>
 
-    </div>
   );
-
-}
-
-if (category === "Entrees") {
-
-  return (
-    <div className="space-y-4">
-
-      <h3 className="text-lg text-[#d6b98c]">
-        Entree Options
-      </h3>
-
-      <div className="flex flex-wrap gap-3">
-
-        {entreeExtras.map(
-          (extra) => (
-
-            <button
-              key={extra}
-              onClick={() =>
-                toggleExtra(extra)
-              }
-              className={`px-5 py-3 rounded-2xl border transition ${
-                extras.includes(extra)
-                  ? "bg-[#d6b98c] text-black border-[#d6b98c]"
-                  : "border-white/10 bg-black/30"
-              }`}
-            >
-              {extra}
-            </button>
-
-          )
-        )}
-
-      </div>
-
-    </div>
-  );
-
-}
-
-return null;
-```
-
-}
-
-return (
-
-```
-<>
-
-  {/* ADD BUTTON */}
-
-  <button
-    onClick={() => setOpen(true)}
-    className="w-14 h-14 rounded-full bg-[#d6b98c] text-black text-3xl hover:scale-105 transition"
-  >
-    +
-  </button>
-
-  {/* MODAL */}
-
-  {open && (
-
-    <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-
-      <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-[32px] bg-[#111] border border-white/10 shadow-2xl">
-
-        {/* CLOSE */}
-
-        <button
-          onClick={() =>
-            setOpen(false)
-          }
-          className="absolute top-6 right-6 z-50 w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition"
-        >
-          <X size={30} />
-        </button>
-
-        {/* CONTENT */}
-
-        <div className="p-8 md:p-12 space-y-10">
-
-          <div>
-
-            <h2 className="text-5xl font-semibold">
-              {item.name}
-            </h2>
-
-            <p className="text-[#d6b98c] text-3xl mt-3">
-              ${item.price}
-            </p>
-
-          </div>
-
-          {renderOptions()}
-
-          {/* NOTES */}
-
-          <div className="space-y-4">
-
-            <h3 className="text-lg text-[#d6b98c]">
-              Notes
-            </h3>
-
-            <textarea
-              value={notes}
-              onChange={(e) =>
-                setNotes(
-                  e.target.value
-                )
-              }
-              placeholder="Special requests..."
-              className="w-full h-32 rounded-2xl bg-black/30 border border-white/10 p-5 outline-none resize-none"
-            />
-
-          </div>
-
-          {/* BUTTON */}
-
-          <button
-            onClick={
-              handleAddToCart
-            }
-            className="w-full py-5 rounded-2xl bg-[#d6b98c] text-black text-xl font-semibold hover:opacity-90 transition"
-          >
-            Add To Cart
-          </button>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  )}
-
-</>
-```
-
-);
 
 }

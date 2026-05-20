@@ -59,7 +59,7 @@ export default function OrderPage() {
 
   return (
 
-    <main className="relative min-h-screen overflow-hidden text-white">
+    <main className="relative min-h-screen text-white">
 
       <PageBackground />
 
@@ -126,14 +126,14 @@ export default function OrderPage() {
 
                         <div
                           key={item.id}
-                          className="group bg-black/25 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 hover:border-[#d6b98c] transition"
+                          className="relative z-0 bg-black/25 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 hover:border-[#d6b98c] transition"
                         >
 
                           <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
 
                             <div>
 
-                              <h3 className="text-3xl mb-3 group-hover:text-[#f5e6c8] transition">
+                              <h3 className="text-3xl mb-3 hover:text-[#f5e6c8] transition">
 
                                 {item.name}
 
